@@ -1,0 +1,33 @@
+﻿.dataTables_wrapper tr.gradeFlick.even {
+background-color:#FFF;
+}
+.dataTables_wrapper tr.gradeFlick.odd {
+background-color:#F5F8F9;
+}
+.dataTables_wrapper tr.gradeFlick.odd:hover {
+background-color:#D5E5F2;
+}
+.dataTables_wrapper tr.gradeFlick.even:hover {
+background-color:#D5E5F2;
+}
+.dataTables_wrapper .center {
+	text-align:center;
+	min-width: 5.3em;
+}
+.dataTables_wrapper .left {
+	text-align:left;
+}
+.dataTables_wrapper .right {
+	text-align:right;
+}
+.dataTables_wrapper .button {
+	padding: 3px 5px !important;
+	font-size: .65em;
+}
+.dataTables_wrapper .num {
+	display: inline-block;
+	width: 50%;
+}
+.dataTables_wrapper {
+	white-space: nowrap;
+}
