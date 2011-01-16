@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Template.Helper.Sorting
+namespace Mvc.Helper.Sorting
 {
     [Serializable]
     public class SortData

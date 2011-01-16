@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.IO.Compression;
 using System.IO;
 
-namespace Mvc.Helpers
+namespace Mvc.Helper
 {
     internal sealed class CompressFilter : ActionFilterAttribute
     {

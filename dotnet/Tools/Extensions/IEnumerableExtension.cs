@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Web.Mvc;
 
-namespace SuiviCRA.Utilitaires.Extensions
+namespace Mvc.Utilitaires.Extensions
 {
     public static class IEnumerableExtension
     {

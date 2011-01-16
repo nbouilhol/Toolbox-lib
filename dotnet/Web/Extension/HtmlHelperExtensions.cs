@@ -5,7 +5,7 @@ using System.Web.UI;
 using System.Web;
 using System.Web.UI.DataVisualization.Charting;
 
-namespace SuiviIncidentsProd.Web.Helpers
+namespace Mvc.Helper
 {
     public static class HtmlHelperExtensions
     {

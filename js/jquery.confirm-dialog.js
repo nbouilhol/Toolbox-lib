@@ -25,7 +25,7 @@
 					.find(".ui-dialog-title")
 					.html(self.attr(opts.titleAttr));
 			confirmdialog
-					.html(opts.format.replace("{message}", self.attr(opts.messageAttr)))
+					.html(opts.formatMessage.call(this, self.attr(opts.messageAttr)))
 					.data("link", opts.onGetUrl.call(self))
 					.dialog("open");
 		});
@@ -38,7 +38,7 @@
 		onYes: function () { $(this.data("link")).submit(); },
 		onNo: function () { },
 		class: "",
-		format: "<p><span class='ui-icon ui-icon-alert' style='float: left; margin: 0 7px 20px 0;'></span>{message}</p>",
+		formatMessage: function (message) { return "<p><span class='ui-icon ui-icon-alert' style='float: left; margin: 0 7px 20px 0;'></span>" + message + "</p>" },
 		eventType: "click"
 	}
 })(jQuery);

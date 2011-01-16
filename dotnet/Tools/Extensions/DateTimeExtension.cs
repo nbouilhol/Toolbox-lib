@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SuiviCRA.Utilitaires.Extensions
+namespace Mvc.Utilitaires.Extensions
 {
     public static class DateTimeExtension
     {

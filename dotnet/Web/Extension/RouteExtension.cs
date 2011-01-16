@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Routing;
 using System.Web.Mvc;
 
-namespace SuiviIncidentsProd.Web.Helpers
+namespace Mvc.Helper
 {
     public static class RouteExtension
     {

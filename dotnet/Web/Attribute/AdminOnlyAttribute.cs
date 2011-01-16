@@ -9,7 +9,7 @@ using SuiviCRA.Web.Models;
 using SuiviCRA.Web.Helpers.Extension;
 using System.Configuration;
 
-namespace SuiviCRA.Web.Helpers
+namespace Mvc.Helper
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class AdminOnlyAttribute : AuthorizeAttribute

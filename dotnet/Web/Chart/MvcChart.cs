@@ -7,7 +7,7 @@ using System.Web.UI;
 using System.IO;
 using System.Globalization;
 
-namespace SuiviIncidentsProd.Web.Helpers
+namespace Mvc.Helper
 {
     public class MvcChart : IDisposable, IHtmlString 
     {

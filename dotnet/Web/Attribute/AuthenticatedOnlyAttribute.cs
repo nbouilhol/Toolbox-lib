@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using SuiviCRA.Web.Helpers.Extension;
 using System.Configuration;
 
-namespace SuiviCRA.Web.Helpers.Attribute
+namespace Mvc.Helper
 {
      [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class AuthenticatedOnlyAttribute : AuthorizeAttribute
