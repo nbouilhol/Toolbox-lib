@@ -2,7 +2,7 @@
 	$.fn.confirmdialog = function (options) {
 		var opts = $.extend({}, $.fn.confirmdialog.defaults, options),
 		confirmdialog = $('<div style="display: none"></div>')
-			.addClass(opts.class)
+			.addClass(opts.dialogClass)
 			.appendTo(opts.insertSelector)
 			.dialog({
 				autoOpen: false,
@@ -37,7 +37,7 @@
 		onGetUrl: function () { return this.closest("form") },
 		onYes: function (url) { $(url).submit(); },
 		onNo: function (url) { },
-		class: "",
+		dialogClass: "",
 		formatMessage: function (message) { return "<p><span class='ui-icon ui-icon-alert' style='float: left; margin: 0 7px 20px 0;'></span>" + message + "</p>" },
 		eventType: "click"
 	}
