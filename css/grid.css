@@ -1,13 +1,16 @@
-﻿.dataTables_wrapper tr.gradeFlick.even {
+﻿.datatable-thead a {
+background-color: inherit !important;
+}
+.dataTables_wrapper .even {
 background-color:#FFF;
 }
-.dataTables_wrapper tr.gradeFlick.odd {
+.dataTables_wrapper .odd {
 background-color:#F5F8F9;
 }
-.dataTables_wrapper tr.gradeFlick.odd:hover {
+.dataTables_wrapper .odd:hover {
 background-color:#D5E5F2;
 }
-.dataTables_wrapper tr.gradeFlick.even:hover {
+.dataTables_wrapper .even:hover {
 background-color:#D5E5F2;
 }
 .dataTables_wrapper .center {

@@ -9,8 +9,10 @@ using System.IO;
 
 namespace Mvc.Helper
 {
-    internal sealed class CompressFilter : ActionFilterAttribute
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    public sealed class CompressFilter : ActionFilterAttribute
     {
+        private const string WILDCARD = "*";
         private const string GZIP = "gzip";
         private const string DEFLATE = "deflate";
 
@@ -29,6 +31,7 @@ namespace Mvc.Helper
             if (filterContext == null)
                 throw new ArgumentNullException("filterContext");
             Compress(filterContext.HttpContext.Request, filterContext.HttpContext.Response);
+            base.OnActionExecuting(filterContext); 
         }
 
         private void Compress(HttpRequestBase request, HttpResponseBase response)
@@ -41,6 +44,11 @@ namespace Mvc.Helper
                 SetEncoding(DEFLATE);
             }
             else if (IsEncodingAccepted(request, GZIP))
+            {
+                response.Filter = new GZipStream(response.Filter, CompressionMode.Compress);
+                SetEncoding(GZIP);
+            }
+            else if (IsEncodingAccepted(request, WILDCARD))
             {
                 response.Filter = new GZipStream(response.Filter, CompressionMode.Compress);
                 SetEncoding(GZIP);

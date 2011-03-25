@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Mvc.Helper.Sorting;
 using System.Reflection;
 using System.Collections;
+using System.Web.Routing;
 
 namespace Mvc.Helper.Grid
 {
@@ -26,6 +27,11 @@ namespace Mvc.Helper.Grid
         public static IGrid<T> SearchFor<T>(this IQueryable<T> source, string input, Expression<Func<T, bool>> filter)
         {
             return new LazyGrid<T>(source).SearchFor(input, filter);
+        }
+
+        public static IGrid<TSource> BuildUrl<TSource>(this IGrid<TSource> grid, RequestContext context, string route, string action)
+        {
+            return grid.BuildUrl(context, route, action);
         }
 
         /// <summary>

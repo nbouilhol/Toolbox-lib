@@ -7,11 +7,13 @@ using Mvc.Helper.Sorting;
 using System.Linq.Expressions;
 using System.Collections;
 using Mvc.Helper.Search;
+using System.Web.Routing;
 
 namespace Mvc.Helper.Grid
 {
     public interface IGrid<TSource> : IGrid, IEnumerable<TSource>
     {
+        IGrid<TSource> BuildUrl(RequestContext context, string route, string action);
         IGrid<TSource> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<TSource, TKey>> keySelector, SortDirection? keySelectorDirection);
         IGrid<TSource> OrderBy(string propertyName, SortDirection? direction, string defaultPropertyName, SortDirection? defaultDirection);
         IGrid<TSource> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<TSource, TKey>> keySelector);
@@ -31,6 +33,7 @@ namespace Mvc.Helper.Grid
 
     public interface IGrid : IEnumerable
     {
+        Func<int, int, string, Mvc.Helper.Sorting.SortDirection?, string, string> Url { get; }
         ISort Sort { get; }
         IPagination Pagination { get; }
         ISearch Search { get; }

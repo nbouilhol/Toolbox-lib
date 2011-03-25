@@ -5,17 +5,18 @@ using System.Web;
 using Mvc.Helper.Pagination;
 using System.Web.Mvc;
 using System.Text;
+using Mvc.Helper.Grid;
 
 namespace Mvc.Helper.UI
 {
-    public class Footer : IHtmlString 
+    public class Footer : IHtmlString
     {
         private const int pageCount = 5;
-        private string paginationInfoFormat = @"Affichage de l'élement {0} à {1} sur {2} éléments";
-        private string paginationFirst = @"Premier";
-        private string paginationPrevious = @"Précédent";
-        private string paginationNext = @"Suivant";
-        private string paginationLast = @"Dernier";
+        private const string paginationInfoFormat = @"Affichage de l'élement {0} à {1} sur {2} éléments";
+        private const string paginationFirst = @"Premier";
+        private const string paginationPrevious = @"Précédent";
+        private const string paginationNext = @"Suivant";
+        private const string paginationLast = @"Dernier";
         private readonly IPagination pagination;
         private readonly Func<int, string> urlBuilder;
 
@@ -24,6 +25,10 @@ namespace Mvc.Helper.UI
             this.pagination = pagination;
             this.urlBuilder = urlBuilder;
         }
+
+        public Footer(IGrid grid)
+            : this(grid.Pagination, p => grid.Url(p, grid.Pagination.PageSize, grid.Sort.Column, grid.Sort.Direction, grid.Search.Input))
+        {}
 
         public override string ToString()
         {
@@ -73,34 +78,31 @@ namespace Mvc.Helper.UI
             {
                 links.First = 1;
                 links.Last = pagination.TotalPages;
+                return links;
             }
-            else
+
+            if (pagination.PageNumber <= pageCountHalf)
             {
-                if (pagination.PageNumber <= pageCountHalf)
-                {
-                    links.First = 1;
-                    links.Last = pageCount;
-                }
-                else
-                {
-                    if (pagination.PageNumber >= (pagination.TotalPages - pageCountHalf))
-                    {
-                        links.First = pagination.TotalPages - pageCount + 1;
-                        links.Last = pagination.TotalPages;
-                    }
-                    else
-                    {
-                        links.First = pagination.PageNumber - ((int)Math.Ceiling((double)(pageCount / 2))) + 1;
-                        links.Last = links.First + pageCount - 1;
-                    }
-                }
+                links.First = 1;
+                links.Last = pageCount;
+                return links;
             }
+
+            if (pagination.PageNumber >= (pagination.TotalPages - pageCountHalf))
+            {
+                links.First = pagination.TotalPages - pageCount + 1;
+                links.Last = pagination.TotalPages;
+                return links;
+            }
+
+            links.First = pagination.PageNumber - ((int)Math.Ceiling((double)(pageCount / 2))) + 1;
+            links.Last = links.First + pageCount - 1;
 
             return links;
         }
 
-        private void RenderNumericPageLink(StringBuilder builder, int page) 
-        { 
+        private void RenderNumericPageLink(StringBuilder builder, int page)
+        {
             builder.AppendFormat(@"<span class='fg-button ui-button ui-state-default {0}'>{1}</span>", pagination.PageNumber == page ? "ui-state-disabled" : "", CreatePageLink(page, page.ToString()));
         }
 
@@ -108,15 +110,15 @@ namespace Mvc.Helper.UI
         {
             if (pagination.TotalItems == 0)
                 return string.Empty;
-            return string.Format(paginationInfoFormat, pagination.FirstItem, pagination.LastItem, pagination.TotalItems); 
+            return string.Format(paginationInfoFormat, pagination.FirstItem, pagination.LastItem, pagination.TotalItems);
         }
 
-        private string CreatePageLink(int pageNumber, string text) 
-        { 
+        private string CreatePageLink(int pageNumber, string text)
+        {
             var builder = new TagBuilder("a");
-            builder.SetInnerText(text); 
-            builder.MergeAttribute("href", urlBuilder(pageNumber)); 
-            return builder.ToString(TagRenderMode.Normal); 
+            builder.SetInnerText(text);
+            builder.MergeAttribute("href", urlBuilder(pageNumber));
+            return builder.ToString(TagRenderMode.Normal);
         }
 
         private class CurrentPageLinks

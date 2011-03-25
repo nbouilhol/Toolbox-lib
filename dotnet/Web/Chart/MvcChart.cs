@@ -46,7 +46,7 @@ namespace Mvc.Helper
         public void Dispose()
         {
             Chart.Dispose();
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(Chart);
         }
     }
 }

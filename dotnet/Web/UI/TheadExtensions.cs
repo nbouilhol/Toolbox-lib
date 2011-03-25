@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using Mvc.Helper.Sorting;
 using System.Linq.Expressions;
 using System.Reflection;
+using Mvc.Helper.Grid;
 
 namespace Mvc.Helper.UI
 {
@@ -16,14 +17,14 @@ namespace Mvc.Helper.UI
             return new Thead(text);
         }
 
-        public static Thead Thead(this HtmlHelper helper, ISort sort, string text, string column, Func<string, SortDirection?, string> urlBuilder)
+        public static Thead Thead(this HtmlHelper helper, IGrid grid, string text, string column)
         {
-            return new Thead(sort, text, column, urlBuilder);
+            return new Thead(grid, text, column);
         }
 
-        public static Thead Thead(this HtmlHelper helper, ISort sort, string text, string column, Func<string, SortDirection?, string> urlBuilder, string @class)
+        public static Thead Thead(this HtmlHelper helper, IGrid grid, string text, string column, string @class)
         {
-            return new Thead(sort, text, column, urlBuilder, @class);
+            return new Thead(grid, text, column, @class);
         }
     }
 }

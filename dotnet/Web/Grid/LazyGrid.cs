@@ -8,6 +8,8 @@ using Mvc.Helper.Sorting;
 using System.Linq.Expressions;
 using Mvc.Helper.Search;
 using AutoMapper;
+using System.Web.Routing;
+using System.Web.Mvc;
 
 namespace Mvc.Helper.Grid
 {
@@ -19,6 +21,7 @@ namespace Mvc.Helper.Grid
         private IPagination pagination;
         private ISort sort;
         private ISearch search;
+        private Func<int, int, string, Mvc.Helper.Sorting.SortDirection?, string, string> url;
         private IEnumerable<T> result;
 
         public LazyGrid(IQueryable<T> query)
@@ -31,7 +34,14 @@ namespace Mvc.Helper.Grid
             this.search = grid.Search;
             this.pagination = grid.Pagination;
             this.sort = grid.Sort;
+            this.url = grid.Url;
             this.result = result;
+        }
+
+        public IGrid<T> BuildUrl(RequestContext context, string route, string action)
+        {
+            url = (p, s, c, d, i) => new UrlHelper(context).RouteUrl(route, new RouteValueDictionary { { "action", action }, { "page", p }, { "size", s }, { "column", c }, { "direction", d }, { "search", i } });
+            return this;
         }
 
         public IGrid<T> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<T, TKey>> keySelector)
@@ -138,6 +148,11 @@ namespace Mvc.Helper.Grid
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable<T>)this).GetEnumerator();
+        }
+
+        public Func<int, int, string, Mvc.Helper.Sorting.SortDirection?, string, string> Url
+        {
+            get { return url; }
         }
 
         public ISort Sort
