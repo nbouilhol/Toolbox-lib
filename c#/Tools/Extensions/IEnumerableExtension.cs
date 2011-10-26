@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Data.Objects;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Mvc;
 
-namespace Mvc.Utilitaires.Extensions
+namespace BouilholLib.Helper
 {
     public static class IEnumerableExtension
     {
+		public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> list)
+        {
+            if (list == null)
+                return null;
+
+            return list.Where(x => x != null);
+        }
+
+        public static IEnumerable<T> Replace<T>(this IEnumerable<T> source, T toReplace, T replaceWith)
+        {
+            return source.Select(item => Equals(item, toReplace) ? replaceWith : item);
+        }
+		
         public static IEnumerable<TSource> Update<TSource>(this IEnumerable<TSource> outer, Action<TSource> updator)
         {
             foreach (var item in outer)

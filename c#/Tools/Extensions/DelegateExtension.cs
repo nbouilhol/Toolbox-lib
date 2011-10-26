@@ -1,12 +1,10 @@
-﻿namespace Mvc.Utilitaires.Extensions
+﻿namespace BouilholLib.Helper
 {
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
     using Collection;
-    using Commun.Monad;
-    using Validation;
 
     public static class DelegateExtension
     {

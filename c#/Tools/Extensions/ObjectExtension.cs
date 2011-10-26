@@ -1,4 +1,4 @@
-﻿namespace Mvc.Utilitaires.Extensions
+﻿namespace BouilholLib.Helper
 {
     #region
 
@@ -8,8 +8,6 @@
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
-    using Utils.IoC.Extension;
-    using Utils.Validation;
 
     #endregion
 
@@ -252,6 +250,21 @@
             where TV : struct
         {
             return value != null ? func() : default(TV);
+        }
+		
+		public static string GetMethodName<T, TProperty>(this T owner, Expression<Func<T, TProperty>> selector) where T : class
+        {
+            return ((MethodCallExpression)(selector.Body is UnaryExpression ? ((UnaryExpression)selector.Body).Operand : selector.Body)).Method.Name;
+        }
+
+        public static string GetMethodName<T>(this T owner, Expression<Action<T>> selector) where T : class
+        {
+            return ((MethodCallExpression)(selector.Body is UnaryExpression ? ((UnaryExpression)selector.Body).Operand : selector.Body)).Method.Name;
+        }
+
+        public static string GetPropertyName<T, TProperty>(this T owner, Expression<Func<T, TProperty>> property) where T : class
+        {
+            return ((MemberExpression)(property.Body is UnaryExpression ? ((UnaryExpression)property.Body).Operand : property.Body)).Member.Name;
         }
     }
 }
