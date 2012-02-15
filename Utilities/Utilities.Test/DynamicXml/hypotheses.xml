@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+  <associations>
+    <association>
+      <CibleCodeFunc>30401</CibleCodeFunc>
+      <NoGaiAnnonceur>C05</NoGaiAnnonceur>
+    </association>
+    <association>
+      <CibleCodeFunc>9232</CibleCodeFunc>
+      <NoGaiAnnonceur>C59</NoGaiAnnonceur>
+    </association>
+  </associations>
+  <hypotheses>
+    <hypothese>
+      <Name>H1</Name>
+      <Gratuits>
+      </Gratuits>
+      <AchatOpportunite>true</AchatOpportunite>
+      <AchatOpportuniteHorsAO15>true</AchatOpportuniteHorsAO15>
+      <AchatCL2>false</AchatCL2>
+      <CodesEcransExclus>
+        <Code>9</Code>
+      </CodesEcransExclus>
+      <TauxPassage></TauxPassage>
+      <RentaPreviousYear></RentaPreviousYear>
+    </hypothese>
+    <hypothese>
+      <Name>H2</Name>
+      <Gratuits></Gratuits>
+      <AchatOpportunite>true</AchatOpportunite>
+      <AchatOpportuniteHorsAO15>true</AchatOpportuniteHorsAO15>
+      <AchatCL2>true</AchatCL2>
+      <CodesEcransExclus></CodesEcransExclus>
+      <TauxPassage></TauxPassage>
+      <RentaPreviousYear></RentaPreviousYear>
+    </hypothese>
+  </hypotheses>
+</root>
