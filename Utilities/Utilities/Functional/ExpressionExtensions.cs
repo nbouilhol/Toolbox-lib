@@ -14,6 +14,16 @@ namespace Utilities.Functional
             return Expression.Lambda<Func<T1, TCovariantResult>>(expr.Body, expr.Parameters);
         }
 
+        public static Func<Action<A>> Curry<A>(this Action<A> f)
+        {
+            return () => a => f(a);
+        }
+
+        public static Func<A, Action<B>> Curry<A, B>(this Action<A, B> f)
+        {
+            return a => b => f(a, b);
+        }
+
         public static Func<A, Func<B, C>> Curry<A, B, C>(this Func<A, B, C> f)
         {
             return a => b => f(a, b);

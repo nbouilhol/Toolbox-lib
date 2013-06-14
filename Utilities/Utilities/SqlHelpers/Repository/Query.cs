@@ -149,6 +149,9 @@ namespace Utilities.SqlHelpers
             return repository.Value.Empty(connectionString, table);
         }
 
-        private static void Throw(string message, Exception exception) { throw exception; }
+        private static void Throw(string message, Exception exception)
+        {
+            throw exception;
+        }
     }
 }

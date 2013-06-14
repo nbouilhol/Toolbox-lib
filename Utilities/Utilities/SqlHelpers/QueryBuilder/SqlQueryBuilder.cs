@@ -1,5 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Text;
+using System.Linq;
 
 namespace Utilities.QueryBuilder
 {
@@ -18,26 +19,31 @@ namespace Utilities.QueryBuilder
             this._sqlJoinBuilder = new SqlJoinBuilder(_sqlQueryRequest);
             this._sqlWhereBuilder = new SqlWhereBuilder(_sqlQueryRequest);
         }
+
         public override string ToString()
         {
             return BuildSelectQuery().ToString();
         }
+
         public StringBuilder ToStringBuilder()
         {
             return BuildSelectQuery();
         }
 
         #region SqlSelectBuilder
+
         public SqlQueryBuilder Distinct()
         {
             _sqlSelectBuilder.Distinct();
             return this;
         }
+
         public SqlQueryBuilder Top(int topValue)
         {
             _sqlSelectBuilder.Top(topValue);
             return this;
         }
+
         public SqlQueryBuilder Max(string tableName, string columnName, string aliasMax = null)
         {
             _sqlSelectBuilder.Max(tableName, columnName, aliasMax);
@@ -55,80 +61,96 @@ namespace Utilities.QueryBuilder
             _sqlSelectBuilder.Select(tableName, newColumnsName);
             return this;
         }
+
         public SqlQueryBuilder SelectColumns(params string[] newColumnsName)
         {
             _sqlSelectBuilder.Select(null, newColumnsName);
             return this;
         }
+
         public SqlQueryBuilder SelectSqlLiteral(params string[] sqlLiteralColumns)
         {
             _sqlSelectBuilder.SelectSqlLiteral(sqlLiteralColumns);
             return this;
         }
+
         public SqlQueryBuilder SelectAll(string nomTable)
         {
             _sqlSelectBuilder.SelectAll(nomTable);
             return this;
         }
+
         public SqlQueryBuilder SelectAll()
         {
             _sqlSelectBuilder.SelectAll();
             return this;
         }
-        #endregion
+
+        #endregion SqlSelectBuilder
 
         #region SqlJoinBuilder
+
         public SqlQueryBuilder InnerJoin(string toTableName, SqlComparisonBuilder sqlComaraison)
         {
             _sqlJoinBuilder.InnerJoin(toTableName, sqlComaraison);
             return this;
         }
+
         public SqlQueryBuilder LeftJoin(string toTableName, SqlComparisonBuilder sqlComaraison)
         {
             _sqlJoinBuilder.LeftJoin(toTableName, sqlComaraison);
             return this;
         }
+
         public SqlQueryBuilder RightJoin(string toTableName, SqlComparisonBuilder sqlComaraison)
         {
             _sqlJoinBuilder.RightJoin(toTableName, sqlComaraison);
             return this;
         }
+
         public SqlQueryBuilder OuterJoin(string toTableName, SqlComparisonBuilder sqlComaraison)
         {
             _sqlJoinBuilder.OuterJoin(toTableName, sqlComaraison);
             return this;
         }
-        #endregion
+
+        #endregion SqlJoinBuilder
 
         #region Implementation of ISqlWhereBuilder
+
         public SqlWhereOperator Where(SqlComparisonBuilder sqlComparison)
         {
             return _sqlWhereBuilder.Where(sqlComparison);
         }
+
         public SqlWhereOperator WhereSqlLiteral(string sqlComparisonSqlLiteral)
         {
             return _sqlWhereBuilder.WhereSqlLiteral(sqlComparisonSqlLiteral);
         }
 
-        #endregion
+        #endregion Implementation of ISqlWhereBuilder
 
         #region OrderBy
+
         public SqlQueryBuilder OrderBy(string tableName, string[] sortColumnsName, SortOrder sortOrder = SortOrder.Ascending)
         {
             _sqlSelectBuilder.OrderBy(tableName, sortColumnsName, sortOrder);
             return this;
         }
+
         public SqlQueryBuilder OrderBy(string[] sortColumnsName, SortOrder sortOrder = SortOrder.Ascending)
         {
             _sqlSelectBuilder.OrderBy(null, sortColumnsName, sortOrder);
             return this;
         }
+
         public SqlQueryBuilder OrderBy(string sortColumnName, SortOrder sortOrder = SortOrder.Ascending)
         {
             _sqlSelectBuilder.OrderBy(null, new string[] { sortColumnName }, sortOrder);
             return this;
         }
-        #endregion
+
+        #endregion OrderBy
 
         public SqlQueryBuilder GroupBy(string tableName, params string[] grouppedColumnsName)
         {
@@ -137,6 +159,7 @@ namespace Utilities.QueryBuilder
         }
 
         #region Private Methods
+
         /// <summary>
         /// fabrique requete SELECT
         /// </summary>
@@ -172,7 +195,6 @@ namespace Utilities.QueryBuilder
             }
 
             query.AppendLine(_sqlQueryRequest.Wheres);
-
         }
 
         private void BuildJoin()
@@ -203,6 +225,7 @@ namespace Utilities.QueryBuilder
         {
             if (_sqlQueryRequest.Top > 0) query.Append(string.Format(" TOP {0} ", _sqlQueryRequest.Top));
         }
+
         private void BuildMax()
         {
             if (string.IsNullOrEmpty(_sqlQueryRequest.MaxColumnName)) return;
@@ -212,6 +235,7 @@ namespace Utilities.QueryBuilder
             if (!string.IsNullOrEmpty(_sqlQueryRequest.MaxAlias)) queryMax += string.Format(" AS {0} ", _sqlQueryRequest.MaxAlias);
             query.Append(queryMax);
         }
+
         private void BuildMin()
         {
             if (string.IsNullOrEmpty(_sqlQueryRequest.MinColumnName)) return;
@@ -221,6 +245,7 @@ namespace Utilities.QueryBuilder
             if (!string.IsNullOrEmpty(_sqlQueryRequest.MinAlias)) queryMin += string.Format(" AS {0} ", _sqlQueryRequest.MinAlias);
             query.Append(queryMin);
         }
+
         private void BuildSum()
         {
             if (string.IsNullOrEmpty(_sqlQueryRequest.SumColumnName)) return;
@@ -230,6 +255,7 @@ namespace Utilities.QueryBuilder
             if (!string.IsNullOrEmpty(_sqlQueryRequest.SumAlias)) querySum += string.Format(" AS {0} ", _sqlQueryRequest.SumAlias);
             query.Append(querySum);
         }
+
         private void BuildAvg()
         {
             if (string.IsNullOrEmpty(_sqlQueryRequest.AvgColumnName)) return;
@@ -239,6 +265,7 @@ namespace Utilities.QueryBuilder
             if (!string.IsNullOrEmpty(_sqlQueryRequest.AvgAlias)) queryAvg += string.Format(" AS {0} ", _sqlQueryRequest.AvgAlias);
             query.Append(queryAvg);
         }
+
         private void BuildCount()
         {
             if (string.IsNullOrEmpty(_sqlQueryRequest.CountColumnName)) return;
@@ -248,6 +275,7 @@ namespace Utilities.QueryBuilder
             if (!string.IsNullOrEmpty(_sqlQueryRequest.CountAlias)) queryCount += string.Format(" AS {0} ", _sqlQueryRequest.CountAlias);
             query.Append(queryCount);
         }
+
         private void BuildDistinct()
         {
             if (_sqlQueryRequest.Distinct) query.Append(" DISTINCT ");
@@ -263,6 +291,7 @@ namespace Utilities.QueryBuilder
             if (_sqlQueryRequest.Columns != null && _sqlQueryRequest.Columns.Count > 0)
                 query.Append(string.Join(", ", _sqlQueryRequest.Columns.ToArray()));
         }
+
         private void BuildGroupBy()
         {
             if (_sqlQueryRequest.GroupByColumns != null && _sqlQueryRequest.GroupByColumns.Count > 0)
@@ -271,6 +300,7 @@ namespace Utilities.QueryBuilder
                 query.Append(string.Join(", ", _sqlQueryRequest.GroupByColumns.ToArray()));
             }
         }
+
         private void BuildOrderBy()
         {
             if (_sqlQueryRequest.SortColumns != null && _sqlQueryRequest.SortColumns.Count > 0)
@@ -279,15 +309,14 @@ namespace Utilities.QueryBuilder
                 query.Append(string.Join(", ", _sqlQueryRequest.SortColumns.ToArray()));
             }
         }
-        #endregion
 
+        #endregion Private Methods
 
         public SqlQueryBuilder Sum(string tableName, string columnName, string aliasSum = null)
         {
             _sqlSelectBuilder.Sum(tableName, columnName, aliasSum);
             return this;
         }
-
 
         public SqlQueryBuilder Avg(string tableName, string columnName, string aliasAvg = null)
         {
@@ -300,16 +329,17 @@ namespace Utilities.QueryBuilder
             _sqlSelectBuilder.Count(tableName, columnName, aliasCount);
             return this;
         }
+
         public SqlQueryBuilder Count()
         {
             _sqlSelectBuilder.Count();
             return this;
         }
+
         public SqlQueryBuilder SelectSubQuery(string subQuery, string aliasSubQuery = null)
         {
             _sqlSelectBuilder.SelectSubQuery(subQuery, aliasSubQuery);
             return this;
         }
     }
-
 }

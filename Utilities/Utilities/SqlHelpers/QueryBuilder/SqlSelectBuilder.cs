@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace Utilities.QueryBuilder
 {
     public class SqlSelectBuilder
     {
         private SqlQueryRequest _sqlQueryRequest;
+
         public SqlSelectBuilder(SqlQueryRequest sqlQueryRequest)
         {
             this._sqlQueryRequest = sqlQueryRequest;
@@ -20,13 +22,13 @@ namespace Utilities.QueryBuilder
         {
             _sqlQueryRequest.Top = topValue;
         }
+
         public void Max(string tableName, string columnName, string aliasMax = null)
         {
             _sqlQueryRequest.MaxTableName = tableName;
             _sqlQueryRequest.MaxColumnName = columnName;
             _sqlQueryRequest.MaxAlias = aliasMax;
         }
-
 
         public void Min(string tableName, string columnName, string aliasMin = null)
         {
@@ -35,15 +37,12 @@ namespace Utilities.QueryBuilder
             _sqlQueryRequest.MinAlias = aliasMin;
         }
 
-
         public void Sum(string tableName, string columnName, string aliasSum = null)
         {
             _sqlQueryRequest.SumTableName = tableName;
             _sqlQueryRequest.SumColumnName = columnName;
             _sqlQueryRequest.SumAlias = aliasSum;
         }
-
-
 
         public void Avg(string tableName, string columnName, string aliasAvg = null)
         {
@@ -52,14 +51,13 @@ namespace Utilities.QueryBuilder
             _sqlQueryRequest.AvgAlias = aliasAvg;
         }
 
-
-
         public void Count(string tableName, string columnName, string aliasCount = null)
         {
             _sqlQueryRequest.CountTableName = tableName;
             _sqlQueryRequest.CountColumnName = columnName;
             _sqlQueryRequest.CountAlias = aliasCount;
         }
+
         public void Count()
         {
             _sqlQueryRequest.CountTableName = null;
@@ -91,7 +89,6 @@ namespace Utilities.QueryBuilder
         {
             if (_sqlQueryRequest.Columns == null) _sqlQueryRequest.Columns = new List<string>();
             _sqlQueryRequest.Columns.AddRange(sqlLiteralColumns);
-
         }
 
         public void SelectAll(string nomTable)
@@ -122,6 +119,7 @@ namespace Utilities.QueryBuilder
                     _sqlQueryRequest.SortColumns.Add(columnName + sortOrderSql);
             }
         }
+
         public void GroupBy(string tableName, params string[] grouppedColumnsName)
         {
             if (grouppedColumnsName == null || grouppedColumnsName.Length == 0)
@@ -138,7 +136,9 @@ namespace Utilities.QueryBuilder
             else
                 _sqlQueryRequest.GroupByColumns.AddRange(grouppedColumnsName);
         }
+
         #region Private methods
+
         private static string ConvertSortOrderToSql(SortOrder sortOrder)
         {
             switch (sortOrder)
@@ -148,7 +148,8 @@ namespace Utilities.QueryBuilder
                 default: return "";
             }
         }
-        #endregion
+
+        #endregion Private methods
 
         public void SelectSubQuery(string subQuery, string aliasSubQuery)
         {

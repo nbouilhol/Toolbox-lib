@@ -26,9 +26,15 @@ namespace Utilities
         {
             LoggingConfiguration config = new LoggingConfiguration();
 
+#if DEBUG
             Target infoFileTarget = BuildInfoFileTarget(logPath, filenameInfo);
             config.AddTarget("infoFileTarget", infoFileTarget);
             config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, infoFileTarget));
+#else
+			Target infoFileTarget = BuildInfoFileTarget(logPath, filenameInfo);
+			config.AddTarget("infoFileTarget", infoFileTarget);
+			config.LoggingRules.Add(new LoggingRule("*", LogLevel.Info, infoFileTarget));
+#endif
 
             Target instantFileTarget = BuildInstantFileTarget(logPath, filenameError);
             config.AddTarget("instantFileTarget", instantFileTarget);
@@ -71,7 +77,8 @@ namespace Utilities
             Guid guid = Guid.NewGuid();
 
             layout.Header = string.Concat(Separator, "${newline}Guid: ", guid.ToString(), "${newline}${date:format=dddd dd MMMM yyyy}${newline}${date:format=T}${newline}Login: ${windows-identity}${newline}Machine: ${machinename}${newline}Version: ${gdc:item=version}${newline}", Separator);
-            layout.Layout = "${message}";
+            //layout.Layout = "${level:uppercase=true} ${logger}: ${message}${onexception:inner=${newline}${exception:format=tostring}}";
+            layout.Layout = "${message}${onexception:inner=${newline}${exception:format=tostring}}";
             layout.Footer = string.Concat(Separator, "${newline}", guid.ToString(), " - ${date:format=T} - ${qpc}s${newline}", Separator);
 
             return layout;

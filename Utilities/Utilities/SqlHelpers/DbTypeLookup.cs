@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Utilities.SqlHelpers
 {
     internal static class DbTypeLookup
     {
-        private static readonly Dictionary<string, SqlDbType> SqlDbTypeLookup = new Dictionary<string, SqlDbType>
+        private static readonly Lazy<Dictionary<string, SqlDbType>> SqlDbTypeLookup = new Lazy<Dictionary<string, SqlDbType>>(() => new Dictionary<string, SqlDbType>
                                                                                     {
                                                                                         {"text", SqlDbType.Text},
                                                                                         {"uniqueidentifier", SqlDbType.UniqueIdentifier},
@@ -42,11 +43,11 @@ namespace Utilities.SqlHelpers
                                                                                         {"nchar", SqlDbType.NChar},
                                                                                         {"xml", SqlDbType.Xml},
                                                                                         {"image", SqlDbType.Image},
-                                                                                    };
+                                                                                    });
 
         public static SqlDbType GetSqlDbType(string typeName)
         {
-            return SqlDbTypeLookup[typeName];
+            return SqlDbTypeLookup.Value[typeName];
         }
     }
 }

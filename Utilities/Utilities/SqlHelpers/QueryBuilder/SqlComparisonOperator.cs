@@ -10,28 +10,32 @@ namespace Utilities.QueryBuilder
         {
             querySqlComparison = new StringBuilder();
         }
+
         public SqlComparisonOperator(StringBuilder querySqlComparison)
         {
             this.querySqlComparison = querySqlComparison;
         }
+
         public SqlComparisonBuilder Equals(string toTableName, string toColumnName, string fromTableName, string fromColumnName)
         {
             querySqlComparison.Append(FormatColumnTableName(toTableName, toColumnName) + " = " + FormatColumnTableName(fromTableName, fromColumnName));
             return new SqlComparisonBuilder(querySqlComparison);
         }
+
         public SqlComparisonBuilder Equals(string tableName, string fieldName, object value, DbType? dbType = null)
         {
             if (value != null)
                 querySqlComparison.AppendFormat(" {0}.{1} = {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
             return new SqlComparisonBuilder(querySqlComparison);
         }
+
         public SqlComparisonBuilder In(string tableName, string fieldName, object[] values, DbType? dbType = null)
         {
-            if (values == null || values.Length == 0) return new SqlComparisonBuilder(querySqlComparison); 
+            if (values == null || values.Length == 0) return new SqlComparisonBuilder(querySqlComparison);
 
             string valuesWithComma = FormatSqlValues(values, dbType);
             querySqlComparison.Append(tableName + "." + fieldName + " IN (" + valuesWithComma + ")");
-            return new SqlComparisonBuilder(querySqlComparison) ;
+            return new SqlComparisonBuilder(querySqlComparison);
         }
 
         public SqlComparisonBuilder NotEquals(string tableName, string fieldName, object value, DbType? dbType = null)
@@ -40,44 +44,48 @@ namespace Utilities.QueryBuilder
                 querySqlComparison.AppendFormat(" {0}.{1} <> {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
             return new SqlComparisonBuilder(querySqlComparison);
         }
+
         public SqlComparisonBuilder Like(string tableName, string fieldName, object value)
         {
             if (value != null)
-            querySqlComparison.AppendFormat(" {0}.{1} LIKE '{2}' ", tableName, fieldName, value);
+                querySqlComparison.AppendFormat(" {0}.{1} LIKE '{2}' ", tableName, fieldName, value);
             return new SqlComparisonBuilder(querySqlComparison);
         }
+
         public SqlComparisonBuilder NotLike(string tableName, string fieldName, object value)
         {
             if (value != null)
-            querySqlComparison.AppendFormat(" NOT {0}.{1} LIKE '{2}' ", tableName, fieldName, value);
+                querySqlComparison.AppendFormat(" NOT {0}.{1} LIKE '{2}' ", tableName, fieldName, value);
             return new SqlComparisonBuilder(querySqlComparison);
         }
+
         public SqlComparisonBuilder GreaterThan(string tableName, string fieldName, object value, DbType? dbType = null)
         {
             if (value != null)
-            querySqlComparison.AppendFormat(" {0}.{1} > {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
+                querySqlComparison.AppendFormat(" {0}.{1} > {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
             return new SqlComparisonBuilder(querySqlComparison);
         }
+
         public SqlComparisonBuilder GreaterOrEquals(string tableName, string fieldName, object value, DbType? dbType = null)
         {
             if (value != null)
-            querySqlComparison.AppendFormat(" {0}.{1} >= {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
+                querySqlComparison.AppendFormat(" {0}.{1} >= {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
             return new SqlComparisonBuilder(querySqlComparison);
         }
 
         public SqlComparisonBuilder LessThan(string tableName, string fieldName, object value, DbType? dbType = null)
         {
             if (value != null)
-            querySqlComparison.AppendFormat(" {0}.{1} < {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
-            return new SqlComparisonBuilder(querySqlComparison);
-        }
-        public SqlComparisonBuilder LessOrEquals(string tableName, string fieldName, object value, DbType? dbType = null)
-        {
-            if (value != null)
-            querySqlComparison.AppendFormat(" {0}.{1} <= {2}", tableName, fieldName, FormatSqlValue(value, dbType));
+                querySqlComparison.AppendFormat(" {0}.{1} < {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
             return new SqlComparisonBuilder(querySqlComparison);
         }
 
+        public SqlComparisonBuilder LessOrEquals(string tableName, string fieldName, object value, DbType? dbType = null)
+        {
+            if (value != null)
+                querySqlComparison.AppendFormat(" {0}.{1} <= {2}", tableName, fieldName, FormatSqlValue(value, dbType));
+            return new SqlComparisonBuilder(querySqlComparison);
+        }
 
         private static string FormatSqlValues(object[] values, DbType? dbType = null)
         {
@@ -110,6 +118,5 @@ namespace Utilities.QueryBuilder
         }
 
         private readonly StringBuilder querySqlComparison;
-
     }
 }

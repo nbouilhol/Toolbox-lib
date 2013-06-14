@@ -8,7 +8,7 @@ namespace Utilities.SqlHelpers
 {
     public class DynamicDataReader : DynamicObject
     {
-        IDataReader dataReader;
+        private IDataReader dataReader;
 
         protected BindingFlags BindingFlags
         {

@@ -13,10 +13,14 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -132,9 +136,28 @@
     <Compile Include="AOP\ActiveRecordWrapper.cs" />
     <Compile Include="AOP\BaseWrapper.cs" />
     <Compile Include="AOP\ProfilerWrapper.cs" />
+    <Compile Include="DomainCommands\Bus.cs" />
+    <Compile Include="DomainCommands\CommandRegistrations.cs" />
+    <Compile Include="DomainCommands\IBus.cs" />
+    <Compile Include="DomainCommands\ICommand.cs" />
+    <Compile Include="DomainCommands\ICommandHandler.cs" />
+    <Compile Include="DomainCommands\ICommandResult.cs" />
+    <Compile Include="DomainCommands\IHandler.cs" />
+    <Compile Include="DomainCommands\IRegistrationService.cs" />
+    <Compile Include="DomainCommands\IValidationHandler.cs" />
+    <Compile Include="DomainCommands\ValidationResult.cs" />
+    <Compile Include="Extensions\AssemblyExtension.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
+    <Compile Include="Extensions\ExceptionExtensions.cs" />
+    <Compile Include="Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Extensions\TaskEx.cs" />
     <Compile Include="Extensions\TaskExtension.cs" />
     <Compile Include="Extensions\TypeExtension.cs" />
+    <Compile Include="Extensions\XmlExtensions.cs" />
+    <Compile Include="Helpers\AsyncLazy.cs" />
+    <Compile Include="Helpers\CommandLineParser.cs" />
+    <Compile Include="Helpers\ConsoleHelper.cs" />
+    <Compile Include="Helpers\ConventionalCatalog.cs" />
     <Compile Include="Helpers\DynamicPropertiesMetaObject.cs" />
     <Compile Include="Helpers\DynamicXmlParser .cs" />
     <Compile Include="Helpers\EnumList.cs" />
@@ -152,7 +175,26 @@
     <Compile Include="Functional\ObjectExtensions.cs" />
     <Compile Include="Helpers\ILogger.cs" />
     <Compile Include="Helpers\Levenshtein.cs" />
+    <Compile Include="Helpers\PathHelper.cs" />
     <Compile Include="Helpers\UndoManager.cs" />
+    <Compile Include="SqlHelpers\BulkCopy.cs" />
+    <Compile Include="SqlHelpers\DataExtensions.cs" />
+    <Compile Include="SqlHelpers\Dynamic\FastExpando.cs" />
+    <Compile Include="SqlHelpers\EnumAlias.cs" />
+    <Compile Include="SqlHelpers\PropertiesDescriptor.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\Interfaces\ISqlQueryBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\Interfaces\ISqlWhereBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlAliasBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlComparisonBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlComparisonOperator.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlJoinBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlQueryBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlQueryRequest.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlSelectBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlSelectQueryBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlWhereBuilder.cs" />
+    <Compile Include="SqlHelpers\QueryBuilder\SqlWhereOperator.cs" />
+    <Compile Include="SqlHelpers\SqlParameterExtensions.cs" />
     <Compile Include="Storage\MemoryCacheManager.cs" />
     <Compile Include="Storage\CappedQueue.cs" />
     <Compile Include="Helpers\StringValueAttribute.cs" />

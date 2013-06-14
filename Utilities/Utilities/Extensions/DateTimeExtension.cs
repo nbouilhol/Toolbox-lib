@@ -4,10 +4,56 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 
-namespace Utilities
+namespace Utilities.Extensions
 {
     public static class DateTimeExtension
     {
+        public static DateTime TodayOrPrevMonday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Monday);
+        }
+
+        public static DateTime TodayOrPrevTuesday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Tuesday);
+        }
+
+        public static DateTime TodayOrPrevWednesday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Wednesday);
+        }
+
+        public static DateTime TodayOrPrevThursday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Thursday);
+        }
+
+        public static DateTime TodayOrPrevFriday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Friday);
+        }
+
+        public static DateTime TodayOrPrevSaturday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Saturday);
+        }
+
+        public static DateTime TodayOrPrevSunday(this DateTime date)
+        {
+            return TodayOrPrev(date, DayOfWeek.Sunday);
+        }
+
+        private static DateTime TodayOrPrev(DateTime date, DayOfWeek day)
+        {
+            int diff = (int)day - (int)date.DayOfWeek;
+            return date.AddDays(diff <= 0 ? diff : diff - 7);
+        }
+
+        public static string ToDevExpressString(this DateTime date)
+        {
+            return date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
         public static DateTime ThisWeekMonday(this DateTime date)
         {
             return date.AddDays((int)DayOfWeek.Monday - (int)date.DayOfWeek);
@@ -280,6 +326,20 @@ namespace Utilities
             bool newYearIsLeapYear = DateTime.IsLeapYear(value);
 
             return !currentYearIsLeapYear && newYearIsLeapYear && date.Day == 28 && date.Month == 2 ? date.AddYears(diff).AddDays(1) : date.AddYears(diff);
+        }
+
+        public static bool IsYearValid(this int year)
+        {
+            return year >= DateTime.MinValue.Year && year <= DateTime.MaxValue.Year;
+        }
+
+        public static string GetTrimestre(this DateTime date)
+        {
+            if (date.Month >= 1 && date.Month <= 3) return "T1";
+            if (date.Month >= 4 && date.Month <= 6) return "T2";
+            if (date.Month >= 7 && date.Month <= 9) return "T3";
+            if (date.Month >= 10 && date.Month <= 12) return "T4";
+            return null;
         }
     }
 }

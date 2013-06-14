@@ -2,9 +2,10 @@
 
 namespace Utilities.Reactive
 {
-    partial interface IEventStream
+    internal partial interface IEventStream
     {
         void Push<TEvent>(TEvent @event);
+
         IObservable<TEvent> Of<TEvent>();
     }
 }

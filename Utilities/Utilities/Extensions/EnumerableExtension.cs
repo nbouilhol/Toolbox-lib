@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace Utilities
+namespace Utilities.Extensions
 {
     public static class EnumerableExtension
     {
@@ -13,6 +13,17 @@ namespace Utilities
                 return null;
 
             return list.Where(x => x != null);
+        }
+
+        public static List<T> InList<T>(this T item)
+        {
+            return new List<T> { item };
+        }
+
+        public static List<T> WithItems<T>(this List<T> list, params T[] items)
+        {
+            list.AddRange(items);
+            return list;
         }
 
         public static IEnumerable<T> Replace<T>(this IEnumerable<T> source, T toReplace, T replaceWith)
@@ -30,11 +41,74 @@ namespace Utilities
 
         public static ICollection<T> Takes<T>(this ICollection<T> source, Func<IEnumerable<T>, IEnumerable<T>> filter)
         {
+            Contract.Requires(source != null);
             Contract.Requires(filter != null);
 
-            ICollection<T> result = filter(source).ToList();
+            List<T> result = filter(source).ToList();
             source = source.Except(result).ToList();
             return result;
+        }
+
+        public static IEnumerable<T> Aggregate<T>(this IEnumerable<T> source, int following, Func<IEnumerable<T>, T> aggregate)
+        {
+            Contract.Requires(source != null);
+            Contract.Requires(aggregate != null);
+
+            for (int cpt = 0; source.Count() > cpt; cpt += following)
+                yield return aggregate(source.Skip(cpt).Take(following));
+        }
+
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
+        {
+            return new HashSet<T>(source);
+        }
+
+        public static int FindIndex<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        {
+            if (items == null) throw new ArgumentNullException("items");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
+            int retVal = 0;
+
+            foreach (var item in items)
+            {
+                if (predicate(item)) return retVal;
+                retVal++;
+            }
+
+            return -1;
+        }
+
+        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector)
+        {
+            return source.MaxBy(selector, Comparer<TKey>.Default);
+        }
+
+        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (selector == null) throw new ArgumentNullException("selector");
+            if (comparer == null) throw new ArgumentNullException("comparer");
+
+            using (var sourceIterator = source.GetEnumerator())
+            {
+                if (!sourceIterator.MoveNext()) throw new InvalidOperationException("Sequence contains no elements");
+                TSource max = sourceIterator.Current;
+                TKey maxKey = selector(max);
+                while (sourceIterator.MoveNext())
+                {
+                    TSource candidate = sourceIterator.Current;
+                    TKey candidateProjected = selector(candidate);
+
+                    if (comparer.Compare(candidateProjected, maxKey) > 0)
+                    {
+                        max = candidate;
+                        maxKey = candidateProjected;
+                    }
+                }
+
+                return max;
+            }
         }
 
         //public static IDictionary<TKey, TElement> ToMyDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)

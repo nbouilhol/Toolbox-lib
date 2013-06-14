@@ -13,7 +13,10 @@ namespace Utilities.Storage
         private readonly Func<T> generator;
         private readonly IProducerConsumerCollection<T> objects;
 
-        public ObjectPool() : this(() => default(T), new ConcurrentQueue<T>(), null) { }
+        public ObjectPool()
+            : this(() => default(T), new ConcurrentQueue<T>(), null)
+        {
+        }
 
         public ObjectPool(Func<T> generator)
             : this(generator, new ConcurrentQueue<T>(), null)
@@ -28,7 +31,10 @@ namespace Utilities.Storage
             Contract.Requires(generator != null);
         }
 
-        public ObjectPool(IEnumerable<T> items) : this(() => default(T), new ConcurrentQueue<T>(), items) { }
+        public ObjectPool(IEnumerable<T> items)
+            : this(() => default(T), new ConcurrentQueue<T>(), items)
+        {
+        }
 
         public ObjectPool(Func<T> generator, IProducerConsumerCollection<T> objects, IEnumerable<T> items)
         {

@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.Composition;
+﻿using System.ComponentModel.Composition;
 
 namespace Utilities.DomainCommands
 {

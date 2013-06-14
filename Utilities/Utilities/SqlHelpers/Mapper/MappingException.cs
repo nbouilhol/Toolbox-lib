@@ -9,13 +9,11 @@ namespace Utilities.SqlHelpers.Mapper
         public MappingException(string message, Exception innerException)
             : base(message, innerException)
         {
-
         }
 
         public MappingException(string message)
             : base(message)
         {
-
         }
 
         public static MappingException InvalidCast(string column, Exception innerException)

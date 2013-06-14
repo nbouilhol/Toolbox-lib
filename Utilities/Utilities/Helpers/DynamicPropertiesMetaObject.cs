@@ -8,6 +8,7 @@ namespace Utilities
     public interface IHasDynamicProperties : IDynamicMetaObjectProvider
     {
         object GetProperty(string name);
+
         void SetProperty(string name, object value);
     }
 

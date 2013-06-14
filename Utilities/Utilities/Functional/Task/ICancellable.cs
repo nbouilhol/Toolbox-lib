@@ -1,5 +1,4 @@
-﻿
-namespace Utilities.Functional.Task
+﻿namespace Utilities.Functional.Task
 {
     public interface ICancellable
     {

@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 using System.Dynamic;
 
 namespace Utilities.SqlHelpers.Dynamic
 {
     public class FastExpando : DynamicObject, IDictionary<string, object>
     {
-        IDictionary<string, object> data;
+        private IDictionary<string, object> data;
 
         public static FastExpando Attach(IDictionary<string, object> data)
         {
@@ -80,7 +78,7 @@ namespace Utilities.SqlHelpers.Dynamic
             }
         }
 
-        #endregion
+        #endregion IDictionary<string,object> Members
 
         #region ICollection<KeyValuePair<string,object>> Members
 
@@ -119,7 +117,7 @@ namespace Utilities.SqlHelpers.Dynamic
             throw new NotImplementedException();
         }
 
-        #endregion
+        #endregion ICollection<KeyValuePair<string,object>> Members
 
         #region IEnumerable<KeyValuePair<string,object>> Members
 
@@ -128,7 +126,7 @@ namespace Utilities.SqlHelpers.Dynamic
             return data.GetEnumerator();
         }
 
-        #endregion
+        #endregion IEnumerable<KeyValuePair<string,object>> Members
 
         #region IEnumerable Members
 
@@ -137,6 +135,6 @@ namespace Utilities.SqlHelpers.Dynamic
             return data.GetEnumerator();
         }
 
-        #endregion
+        #endregion IEnumerable Members
     }
 }

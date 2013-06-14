@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using Utilities.Extensions;
 
 namespace Utilities
 {
-    public class SwitchCase<TKey> : Dictionary<TKey, Action>
+    public class SwitchCase<TKey> : ConcurrentDictionary<TKey, Action>
     {
         private Action defaultAction;
 
-        public SwitchCase() { }
+        public SwitchCase()
+        {
+        }
 
         public SwitchCase(Action defaultAction)
         {
@@ -16,13 +19,8 @@ namespace Utilities
 
         public void Eval(TKey key)
         {
-            if (this.ContainsKey(key))
-            {
-                Action action = this[key];
-                if (action != null) action();
-            }
-            else
-                this.defaultAction();
+            Action action = this.TryGetValue(key, defaultAction);
+            if (action != null) action();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Utilities.DomainCommands
@@ -55,6 +54,26 @@ namespace Utilities.DomainCommands
             if (handler is IDisposable)
                 ((IDisposable)handler).Dispose();
             return result;
+        }
+
+        ICommandResult IBus.Execute<TCommand>(TCommand command)
+        {
+            return Execute(command).FirstOrDefault();
+        }
+
+        IEnumerable<ValidationResult> IBus.Validate<TCommand>(TCommand command)
+        {
+            return Validate(command).FirstOrDefault();
+        }
+
+        Task<ICommandResult> IBus.ExecuteAsync<TCommand>(TCommand command)
+        {
+            return ExecuteAsync(command).FirstOrDefault();
+        }
+
+        Task<IEnumerable<ValidationResult>> IBus.ValidateAsync<TCommand>(TCommand command)
+        {
+            return ValidateAsync(command).FirstOrDefault();
         }
     }
 }

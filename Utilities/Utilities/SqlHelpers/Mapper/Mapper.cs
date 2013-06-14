@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Utilities.Extensions;
 
 namespace Utilities.SqlHelpers.Mapper
 {
@@ -34,8 +35,7 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static IDictionary<string, PropertyMetadata<T>> BuildPropertiesDictionary()
         {
-            if (typeof(T).IsValueType)
-                return null;
+            if (typeof(T).IsValueType) return null;
 
             IEnumerable<PropertyInfo> properties = GetProperties();
             return properties != null
@@ -45,11 +45,9 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static IEnumerable<PropertyInfo> GetProperties()
         {
-            if (typeof(T).IsValueType)
-                return null;
+            if (typeof(T).IsValueType) return null;
 
-            return typeof(T).GetProperties()
-                .Where(property => property.CanWrite && (NotMappedAttribute)Attribute.GetCustomAttribute(property, typeof(NotMappedAttribute)) == null);
+            return typeof(T).GetPropertiesInfoWithInterfaces().Where(property => property.CanWrite && (NotMappedAttribute)Attribute.GetCustomAttribute(property, typeof(NotMappedAttribute)) == null);
         }
 
         public IEnumerable<T> MapToList(SqlDataReader reader)
@@ -59,8 +57,7 @@ namespace Utilities.SqlHelpers.Mapper
                 while (reader.Read())
                 {
                     T result = Map(reader);
-                    if (result != null)
-                        yield return result;
+                    if (result != null) yield return result;
                 }
 
                 reader.NextResult();
@@ -71,7 +68,6 @@ namespace Utilities.SqlHelpers.Mapper
         {
             Contract.Requires(reader != null);
 
-            reader.Read();
             return Map(reader);
         }
 
@@ -89,10 +85,8 @@ namespace Utilities.SqlHelpers.Mapper
                 {
                     try
                     {
-                        if (typeof(T).IsValueType)
-                            instance = record[column] != null ? (T)record[column] : default(T);
-                        else if (properties.TryGetValue(record.GetName(column), out property))
-                            if (property != null) property.SetValue(instance, record[column]);
+                        if (typeof(T).IsValueType) instance = record[column] != null ? (T)record[column] : default(T);
+                        else if (properties.TryGetValue(record.GetName(column), out property)) if (property != null) property.SetValue(instance, record[column]);
                     }
                     catch (InvalidCastException e)
                     {
@@ -106,13 +100,11 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static Func<T> CreateActivatorDelegate()
         {
-            if (typeof(T).IsValueType)
-                return CreateActivatorDelegateForPrimitive();
+            if (typeof(T).IsValueType) return CreateActivatorDelegateForPrimitive();
 
             ConstructorInfo constructor = typeof(T).GetConstructor(Type.EmptyTypes);
 
-            if (constructor == null)
-                return () => { throw MappingException.NoParameterlessConstructor(typeof(T)); };
+            if (constructor == null) return () => { throw MappingException.NoParameterlessConstructor(typeof(T)); };
 
             return Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
         }

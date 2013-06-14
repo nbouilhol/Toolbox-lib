@@ -1,5 +1,4 @@
-﻿
-namespace Utilities.QueryBuilder
+﻿namespace Utilities.QueryBuilder
 {
     public static class SqlSelectQueryBuilder
     {

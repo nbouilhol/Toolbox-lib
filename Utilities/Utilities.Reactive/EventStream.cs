@@ -2,8 +2,8 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Subjects;
-using Utilities.Functional;
 using Utilities.Extensions;
+using Utilities.Functional;
 
 namespace Utilities.Reactive
 {

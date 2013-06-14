@@ -6,7 +6,7 @@ namespace Utilities.SqlHelpers
 {
     public class DynamicDataRow : DynamicObject
     {
-        DataRow dataRow;
+        private DataRow dataRow;
 
         public DynamicDataRow(DataRow dataRow)
         {

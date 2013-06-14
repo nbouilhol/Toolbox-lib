@@ -11,6 +11,8 @@ namespace Utilities.SqlHelpers
 {
     public class Repository : IRepository
     {
+        private const int commandTimeout = 30;
+
         private readonly Action<string, Exception> logger;
 
         public Repository(Action<string, Exception> logger)
@@ -20,13 +22,118 @@ namespace Utilities.SqlHelpers
             this.logger = logger;
         }
 
-        [ContractInvariantMethod]
-        private void ObjectInvariant()
+        public static string CleanUpRequest(string source)
         {
-            Contract.Invariant(this.logger != null);
+            string rawText = source;
+
+            rawText = SimpleRequestCleanUp(rawText);
+            rawText = RemoveExtraSpacing(rawText);
+
+            return rawText.Trim();
+            //return Regex.Replace(source, @"\s+", " ", RegexOptions.IgnoreCase | RegexOptions.Multiline);
         }
 
-        public virtual ICollection<T> Execute<T>(string connectionString, string commandText, params object[] parameters)
+        public virtual int BulkDelete(string connectionString, string commandText, DataTable dataTable, params SqlParameter[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            int recordCount = 0;
+
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+            using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter())
+            using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
+            {
+                sqlCommande.CommandType = CommandType.Text;
+                sqlCommande.Parameters.AddRange(parameters != null && parameters.Length > 0 ? parameters : BuildSqlParameterByDataTable(dataTable));
+                sqlCommande.UpdatedRowSource = UpdateRowSource.None;
+
+                sqlDataAdapter.AcceptChangesDuringUpdate = false;
+                sqlDataAdapter.UpdateBatchSize = 5000;
+                sqlDataAdapter.MissingSchemaAction = MissingSchemaAction.Add;
+                sqlDataAdapter.MissingMappingAction = MissingMappingAction.Passthrough;
+
+                sqlDataAdapter.InsertCommand = sqlCommande;
+                sqlDataAdapter.UpdateCommand = sqlCommande;
+                sqlDataAdapter.DeleteCommand = sqlCommande;
+
+                if (sqlConnexion.State == ConnectionState.Closed) sqlConnexion.Open();
+                using (SqlTransaction sqlTransaction = sqlConnexion.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    sqlCommande.Transaction = sqlTransaction;
+
+                    try
+                    {
+                        recordCount = sqlDataAdapter.Update(dataTable);
+                        sqlTransaction.Commit();
+                    }
+                    catch (Exception e)
+                    {
+                        sqlTransaction.Rollback();
+                        recordCount = -1;
+                        logger(commandText, e);
+                    }
+                }
+            }
+
+            return recordCount;
+        }
+
+        public virtual int BulkUpdate(string connectionString, string commandText, DataTable dataTable, params SqlParameter[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            int recordCount = 0;
+
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+            using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter())
+            using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
+            {
+                sqlCommande.CommandType = CommandType.Text;
+                sqlCommande.CommandTimeout = 900;
+                sqlCommande.Parameters.AddRange(parameters != null && parameters.Length > 0 ? parameters : BuildSqlParameterByDataTable(dataTable));
+                sqlCommande.UpdatedRowSource = UpdateRowSource.None;
+
+                sqlDataAdapter.AcceptChangesDuringUpdate = false;
+                sqlDataAdapter.UpdateBatchSize = 5000;
+                sqlDataAdapter.MissingSchemaAction = MissingSchemaAction.Add;
+                sqlDataAdapter.MissingMappingAction = MissingMappingAction.Passthrough;
+
+                sqlDataAdapter.InsertCommand = sqlCommande;
+                sqlDataAdapter.UpdateCommand = sqlCommande;
+
+                if (sqlConnexion.State == ConnectionState.Closed) sqlConnexion.Open();
+                using (SqlTransaction sqlTransaction = sqlConnexion.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    sqlCommande.Transaction = sqlTransaction;
+
+                    try
+                    {
+                        recordCount = sqlDataAdapter.Update(dataTable);
+                        sqlTransaction.Commit();
+                    }
+                    catch (Exception e)
+                    {
+                        sqlTransaction.Rollback();
+                        recordCount = -1;
+                        logger(commandText, e);
+                    }
+                }
+            }
+
+            return recordCount;
+        }
+
+        public virtual int Empty(string connectionString, string table)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            return ExecuteNonQuery(connectionString, QueryRequest.Truncate(table));
+        }
+
+        public virtual IList<T> Execute<T>(string connectionString, string commandText, params object[] parameters)
         {
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
             Contract.Requires(commandText != null);
@@ -35,7 +142,7 @@ namespace Utilities.SqlHelpers
             return Execute<T>(connectionString, commandText, reader => mapper.MapToList(reader), parameters);
         }
 
-        public virtual ICollection<T> Execute<T>(string connectionString, string commandText, Func<SqlDataReader, T> mapper, params object[] parameters)
+        public virtual IList<T> Execute<T>(string connectionString, string commandText, Func<SqlDataReader, T> mapper, params object[] parameters)
         {
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
             Contract.Requires(commandText != null);
@@ -43,151 +150,7 @@ namespace Utilities.SqlHelpers
             return Execute<T>(connectionString, commandText, reader => QueryMapping.Map<T>(reader, mapper), parameters);
         }
 
-        public virtual T ExecuteOne<T>(string connectionString, string commandText, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            Mapper<T> mapper = Mapper<T>.Create();
-
-            return ExecuteOneRow<T>(connectionString, commandText, reader => mapper.MapOne(reader), parameters);
-        }
-
-        public virtual ICollection<T> ExecuteAndFlatten<T>(string connectionString, string commandText, Func<SqlDataReader, ICollection<T>> mapper, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            return Execute<T>(connectionString, commandText, reader => QueryMapping.MapForFlatten<T>(reader, mapper).SelectMany(result => result), parameters);
-        }
-
-        public virtual ICollection<T> FindAll<T>(string connectionString, string table)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllQuery(table);
-            return Execute<T>(connectionString, query);
-        }
-
-        public virtual T FindOne<T>(string connectionString, string table)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllQuery(table);
-            return ExecuteOne<T>(connectionString, query);
-        }
-
-        public virtual ICollection<T> FindAllBy<T>(string connectionString, string table, IDictionary<string, object> properties)
-        {
-            Contract.Requires(properties != null);
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllWhere(table, properties.Keys);
-            return Execute<T>(connectionString, query, properties.Values.ToArray());
-        }
-
-        public virtual T FindOneBy<T>(string connectionString, string table, IDictionary<string, object> properties)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(properties != null);
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllWhere(table, properties.Keys);
-            return ExecuteOne<T>(connectionString, query, properties.Values.ToArray());
-        }
-
-        public virtual ICollection<IDictionary<string, object>> ExecuteDictionary(string connectionString, string commandText, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            return Execute<IDictionary<string, object>>(connectionString, commandText, reader => reader.ToDictionary(), parameters);
-        }
-
-        public virtual IDictionary<string, object> ExecuteOneDictionary(string connectionString, string commandText, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            return ExecuteOneRow<IDictionary<string, object>>(connectionString, commandText, reader => reader.ToOneDictionary(), parameters);
-        }
-
-        public virtual ICollection<dynamic> ExecuteDynamic(string connectionString, string commandText, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            return Execute<dynamic>(connectionString, commandText, reader => reader.ToDynamic(), parameters);
-        }
-
-        public virtual dynamic ExecuteOneDynamic(string connectionString, string commandText, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            return ExecuteOneRow<dynamic>(connectionString, commandText, reader => reader.ToOneDynamic(), parameters);
-        }
-
-        public virtual ICollection<dynamic> FindAllDynamic(string connectionString, string table)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllQuery(table);
-            return ExecuteDynamic(connectionString, query);
-        }
-
-        public virtual dynamic FindOneDynamic(string connectionString, string table)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllQuery(table);
-            return ExecuteDynamic(connectionString, query);
-        }
-
-        public virtual ICollection<dynamic> FindAllByDynamic(string connectionString, string table, string where, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllWhere(table, where);
-            return ExecuteDynamic(connectionString, query, parameters);
-        }
-
-        public virtual dynamic FindOneByDynamic(string connectionString, string table, string where, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllWhere(table, where);
-            return ExecuteOneDynamic(connectionString, query, parameters);
-        }
-
-        public virtual ICollection<dynamic> FindAllByDynamic(string connectionString, string table, IDictionary<string, object> properties)
-        {
-            Contract.Requires(properties != null);
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllWhere(table, properties.Keys);
-            return ExecuteDynamic(connectionString, query, properties.Values.ToArray());
-        }
-
-        public virtual dynamic FindOneByDynamic(string connectionString, string table, IDictionary<string, object> properties)
-        {
-            Contract.Requires(properties != null);
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(!string.IsNullOrEmpty(table));
-
-            string query = QueryRequest.FindAllWhere(table, properties.Keys);
-            return ExecuteOneDynamic(connectionString, query, properties.Values.ToArray());
-        }
-
-        public virtual ICollection<T> Execute<T>(string connectionString, string commandText, Func<SqlDataReader, IEnumerable<T>> funcMapper, params object[] parameters)
+        public virtual IList<T> Execute<T>(string connectionString, string commandText, Func<SqlDataReader, IEnumerable<T>> funcMapper, params object[] parameters)
         {
             Contract.Requires(funcMapper != null);
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
@@ -199,6 +162,7 @@ namespace Utilities.SqlHelpers
                 using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
                 {
                     sqlCommande.CommandType = CommandType.Text;
+
                     sqlCommande.CommandTimeout = 500;
                     if (parameters != null && parameters.Length > 0)
                         sqlCommande.AddParams(parameters);
@@ -215,40 +179,51 @@ namespace Utilities.SqlHelpers
             }
             catch (Exception e)
             {
-                logger(commandText, e);
+                if (parameters != null) logger(string.Concat(commandText, " ", string.Concat(parameters.Select(x => x.ToString()))), e);
+                else logger(commandText, e);
             }
 
             return null;
         }
 
-        public virtual TResult ExecuteScalar<TResult>(string connectionString, string commandText, params object[] parameters)
+        public virtual IList<T> ExecuteAndFlatten<T>(string connectionString, string commandText, Func<SqlDataReader, ICollection<T>> mapper, params object[] parameters)
         {
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
             Contract.Requires(commandText != null);
 
-            try
+            return Execute<T>(connectionString, commandText, reader => QueryMapping.MapForFlatten<T>(reader, mapper).SelectMany(result => result), parameters);
+        }
+
+        public virtual IEnumerable<T> ExecuteAsStream<T>(string connectionString, string commandText, Func<SqlDataReader, T> funcMapper, params object[] parameters)
+        {
+            return ExecuteAsStream(connectionString, commandText, funcMapper, sqlCommand => AddParams(sqlCommand, parameters));
+        }
+
+        public virtual IEnumerable<T> ExecuteAsStream<T>(string connectionString, string commandText, Func<SqlDataReader, T> funcMapper, Action<SqlCommand> funcAddParams)
+        {
+            Contract.Requires(funcMapper != null);
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+            using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
             {
-                using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
-                using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
+                sqlCommande.CommandType = CommandType.Text;
+                sqlCommande.CommandTimeout = commandTimeout;
+                funcAddParams(sqlCommande);
+
+                if (sqlConnexion.State == ConnectionState.Closed)
+                    sqlConnexion.Open();
+
+                using (SqlDataReader reader = sqlCommande.ExecuteReader(CommandBehavior.CloseConnection))
                 {
-                    sqlCommande.CommandType = CommandType.Text;
-                    sqlCommande.CommandTimeout = 500;
-                    if (parameters != null && parameters.Length > 0)
-                        sqlCommande.AddParams(parameters);
-
-                    if (sqlConnexion.State == ConnectionState.Closed)
-                        sqlConnexion.Open();
-
-                    var result = sqlCommande.ExecuteScalar();
-                    return result != null ? (TResult)result : default(TResult);
+                    while (reader.HasRows)
+                    {
+                        while (reader.Read()) yield return funcMapper(reader);
+                        reader.NextResult();
+                    }
                 }
             }
-            catch (Exception e)
-            {
-                logger(commandText, e);
-            }
-
-            return default(TResult);
         }
 
         public virtual DataSet ExecuteDataSet(string connectionString, string commandText, DataSet dataSet, string tablename, params object[] parameters)
@@ -266,6 +241,7 @@ namespace Utilities.SqlHelpers
                 using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommande))
                 {
                     sqlCommande.CommandType = CommandType.Text;
+
                     sqlCommande.CommandTimeout = 500;
                     if (parameters != null && parameters.Length > 0)
                         sqlCommande.AddParams(parameters);
@@ -313,6 +289,7 @@ namespace Utilities.SqlHelpers
                 using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommande))
                 {
                     sqlCommande.CommandType = CommandType.Text;
+
                     sqlCommande.CommandTimeout = 500;
                     if (parameters != null && parameters.Length > 0)
                         sqlCommande.AddParams(parameters);
@@ -336,6 +313,208 @@ namespace Utilities.SqlHelpers
             return null;
         }
 
+        public virtual IList<IDictionary<string, object>> ExecuteDictionary(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            return Execute<IDictionary<string, object>>(connectionString, commandText, reader => reader.ToDictionary(), parameters);
+        }
+
+        public virtual IList<dynamic> ExecuteDynamic(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            return Execute<dynamic>(connectionString, commandText, reader => reader.ToDynamic(), parameters);
+        }
+
+        public virtual dynamic ExecuteDynamicDataReader(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            return new DynamicDataReader(ExecuteReader(connectionString, commandText, parameters));
+        }
+
+        public virtual int ExecuteNonQuery(string connectionString, string commandText, IEnumerable<IEnumerable<SqlParameter>> parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            int recordCount = 0;
+
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+            using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
+            {
+                sqlCommande.CommandType = CommandType.Text;
+                sqlCommande.UpdatedRowSource = UpdateRowSource.None;
+
+                if (sqlConnexion.State == ConnectionState.Closed) sqlConnexion.Open();
+                using (SqlTransaction sqlTransaction = sqlConnexion.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    sqlCommande.Transaction = sqlTransaction;
+
+                    try
+                    {
+                        foreach (IEnumerable<SqlParameter> parameter in parameters)
+                        {
+                            sqlCommande.Parameters.Clear();
+                            sqlCommande.Parameters.AddRange(parameter.ToArray());
+
+                            recordCount += sqlCommande.ExecuteNonQuery();
+                        }
+
+                        sqlTransaction.Commit();
+                    }
+                    catch (Exception e)
+                    {
+                        sqlTransaction.Rollback();
+                        recordCount = -1;
+                        logger(commandText, e);
+                    }
+                }
+            }
+
+            return recordCount;
+        }
+
+        public virtual int ExecuteNonQuery(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            int recordCount = 0;
+
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+            using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
+            {
+                sqlCommande.CommandType = CommandType.Text;
+                sqlCommande.UpdatedRowSource = UpdateRowSource.None;
+                if (parameters != null && parameters.Length > 0) sqlCommande.AddParams(parameters);
+
+                if (sqlConnexion.State == ConnectionState.Closed) sqlConnexion.Open();
+
+                using (SqlTransaction sqlTransaction = sqlConnexion.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    sqlCommande.Transaction = sqlTransaction;
+
+                    try
+                    {
+                        recordCount = sqlCommande.ExecuteNonQuery();
+                        sqlTransaction.Commit();
+                    }
+                    catch (Exception e)
+                    {
+                        sqlTransaction.Rollback();
+                        recordCount = -1;
+                        logger(commandText, e);
+                    }
+                }
+            }
+
+            return recordCount;
+        }
+
+        public virtual TResult ExecuteNonQueryWithIdentity<TResult>(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+            using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(string.Concat(commandText, ";set @ID=SCOPE_IDENTITY()")), sqlConnexion))
+            {
+                sqlCommande.CommandType = CommandType.Text;
+                sqlCommande.UpdatedRowSource = UpdateRowSource.OutputParameters;
+
+                if (parameters != null && parameters.Length > 0)
+                    sqlCommande.AddParams(parameters);
+
+                sqlCommande.Parameters.Add("@ID", typeof(TResult).ToSqlType(), 0, "ID");
+                sqlCommande.Parameters["@ID"].Direction = ParameterDirection.Output;
+
+                if (sqlConnexion.State == ConnectionState.Closed)
+                    sqlConnexion.Open();
+
+                using (SqlTransaction sqlTransaction = sqlConnexion.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    sqlCommande.Transaction = sqlTransaction;
+
+                    try
+                    {
+                        sqlCommande.ExecuteNonQuery();
+                        sqlTransaction.Commit();
+                    }
+                    catch (Exception e)
+                    {
+                        sqlTransaction.Rollback();
+                        logger(commandText, e);
+                    }
+                }
+
+                return (TResult)sqlCommande.Parameters["@ID"].Value;
+            }
+        }
+
+        public virtual T ExecuteOne<T>(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            Mapper<T> mapper = Mapper<T>.Create();
+
+            return ExecuteOneRow<T>(connectionString, commandText, reader => mapper.MapOne(reader), parameters);
+        }
+
+        public virtual IDictionary<string, object> ExecuteOneDictionary(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            return ExecuteOneRow<IDictionary<string, object>>(connectionString, commandText, reader => reader.ToOneDictionary(), parameters);
+        }
+
+        public virtual dynamic ExecuteOneDynamic(string connectionString, string commandText, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            return ExecuteOneRow<dynamic>(connectionString, commandText, reader => reader.ToOneDynamic(), parameters);
+        }
+
+        public virtual T ExecuteOneRow<T>(string connectionString, string commandText, Func<SqlDataReader, T> funcMapper, params object[] parameters)
+        {
+            Contract.Requires(funcMapper != null);
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(commandText != null);
+
+            try
+            {
+                using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
+                using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
+                {
+                    sqlCommande.CommandType = CommandType.Text;
+
+                    sqlCommande.CommandTimeout = 500;
+                    if (parameters != null && parameters.Length > 0 && sqlCommande.Parameters != null)
+                        sqlCommande.AddParams(parameters);
+
+                    if (sqlConnexion.State == ConnectionState.Closed)
+                        sqlConnexion.Open();
+
+                    using (SqlDataReader reader = sqlCommande.ExecuteReader(CommandBehavior.SingleRow))
+                        if (reader.HasRows && reader.Read()) return funcMapper(reader);
+                }
+            }
+            catch (Exception e)
+            {
+                if (parameters != null) logger(string.Concat(commandText, " ", string.Concat(parameters.Select(x => x.ToString()))), e);
+                else logger(commandText, e);
+            }
+
+            return default(T);
+        }
+
         public virtual IDataReader ExecuteReader(string connectionString, string commandText, params object[] parameters)
         {
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
@@ -347,6 +526,7 @@ namespace Utilities.SqlHelpers
                 using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
                 {
                     sqlCommande.CommandType = CommandType.Text;
+
                     sqlCommande.CommandTimeout = 500;
                     if (parameters != null && parameters.Length > 0)
                         sqlCommande.AddParams(parameters);
@@ -365,12 +545,10 @@ namespace Utilities.SqlHelpers
             return null;
         }
 
-        public virtual int ExecuteNonQuery(string connectionString, string commandText, params object[] parameters)
+        public virtual TResult ExecuteScalar<TResult>(string connectionString, string commandText, params object[] parameters)
         {
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
             Contract.Requires(commandText != null);
-
-            int recordCount = 0;
 
             try
             {
@@ -378,6 +556,7 @@ namespace Utilities.SqlHelpers
                 using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
                 {
                     sqlCommande.CommandType = CommandType.Text;
+
                     sqlCommande.CommandTimeout = 500;
                     if (parameters != null && parameters.Length > 0)
                         sqlCommande.AddParams(parameters);
@@ -385,72 +564,170 @@ namespace Utilities.SqlHelpers
                     if (sqlConnexion.State == ConnectionState.Closed)
                         sqlConnexion.Open();
 
-                    recordCount = sqlCommande.ExecuteNonQuery();
+                    var result = sqlCommande.ExecuteScalar();
+                    return result != null ? (TResult)result : default(TResult);
                 }
-            }
-            catch (Exception e)
-            {
-                recordCount = -1;
-                logger(commandText, e);
-            }
-
-            return recordCount;
-        }
-
-        public virtual T ExecuteOneRow<T>(string connectionString, string commandText, Func<SqlDataReader, T> funcMapper, params object[] parameters)
-        {
-            Contract.Requires(funcMapper != null);
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            try
-            {
-                using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
-                using (SqlCommand sqlCommande = new SqlCommand(CleanUpRequest(commandText), sqlConnexion))
-                {
-                    sqlCommande.CommandType = CommandType.Text;
-                    sqlCommande.CommandTimeout = 500;
-                    if (parameters != null && parameters.Length > 0 && sqlCommande.Parameters != null)
-                        sqlCommande.Parameters.AddRange(parameters);
-
-                    if (sqlConnexion.State == ConnectionState.Closed)
-                        sqlConnexion.Open();
-
-                    using (SqlDataReader reader = sqlCommande.ExecuteReader(CommandBehavior.SingleRow))
-                    {
-                        reader.Read();
-                        return funcMapper(reader);
-                    }
-                }
-
             }
             catch (Exception e)
             {
                 logger(commandText, e);
             }
 
-            return default(T);
+            return default(TResult);
         }
 
-        public virtual dynamic ExecuteDynamicDataReader(string connectionString, string commandText, params object[] parameters)
-        {
-            Contract.Requires(!string.IsNullOrEmpty(connectionString));
-            Contract.Requires(commandText != null);
-
-            return new DynamicDataReader(ExecuteReader(connectionString, commandText, parameters));
-        }
-
-        public virtual int Empty(string connectionString, string table)
+        public virtual IList<T> FindAll<T>(string connectionString, string table)
         {
             Contract.Requires(!string.IsNullOrEmpty(connectionString));
             Contract.Requires(!string.IsNullOrEmpty(table));
 
-            return ExecuteNonQuery(connectionString, QueryRequest.Truncate(table));
+            string query = QueryRequest.FindAllQuery(table);
+            return Execute<T>(connectionString, query);
         }
 
-        public static string CleanUpRequest(string source)
+        public virtual IList<T> FindAllBy<T>(string connectionString, string table, IDictionary<string, object> properties)
         {
-            return Regex.Replace(source, @"\s+", " ", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            Contract.Requires(properties != null);
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllWhere(table, properties.Keys);
+            return Execute<T>(connectionString, query, properties.Values.ToArray());
+        }
+
+        public virtual IList<dynamic> FindAllByDynamic(string connectionString, string table, string where, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllWhere(table, where);
+            return ExecuteDynamic(connectionString, query, parameters);
+        }
+
+        public virtual IList<dynamic> FindAllByDynamic(string connectionString, string table, IDictionary<string, object> properties)
+        {
+            Contract.Requires(properties != null);
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllWhere(table, properties.Keys);
+            return ExecuteDynamic(connectionString, query, properties.Values.ToArray());
+        }
+
+        public virtual IList<dynamic> FindAllDynamic(string connectionString, string table)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllQuery(table);
+            return ExecuteDynamic(connectionString, query);
+        }
+
+        public virtual T FindOne<T>(string connectionString, string table)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllQuery(table);
+            return ExecuteOne<T>(connectionString, query);
+        }
+
+        public virtual T FindOneBy<T>(string connectionString, string table, IDictionary<string, object> properties)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(properties != null);
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllWhere(table, properties.Keys);
+            return ExecuteOne<T>(connectionString, query, properties.Values.ToArray());
+        }
+
+        public virtual dynamic FindOneByDynamic(string connectionString, string table, string where, params object[] parameters)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllWhere(table, where);
+            return ExecuteOneDynamic(connectionString, query, parameters);
+        }
+
+        public virtual dynamic FindOneByDynamic(string connectionString, string table, IDictionary<string, object> properties)
+        {
+            Contract.Requires(properties != null);
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllWhere(table, properties.Keys);
+            return ExecuteOneDynamic(connectionString, query, properties.Values.ToArray());
+        }
+
+        public virtual dynamic FindOneDynamic(string connectionString, string table)
+        {
+            Contract.Requires(!string.IsNullOrEmpty(connectionString));
+            Contract.Requires(!string.IsNullOrEmpty(table));
+
+            string query = QueryRequest.FindAllQuery(table);
+            return ExecuteDynamic(connectionString, query);
+        }
+
+        private static void AddParams(SqlCommand sqlCommande, params object[] parameters)
+        {
+            if (parameters != null && parameters.Length > 0)
+                sqlCommande.AddParams(parameters);
+        }
+
+        private static SqlParameter[] BuildSqlParameterByDataTable(DataTable dataTable)
+        {
+            return dataTable.Columns.Cast<DataColumn>().Select(column =>
+            {
+                SqlParameter sqlParameter = new SqlParameter(FormatParametername(column.ColumnName), SqlDbTypeEx.ToSqlType(column.DataType));
+                sqlParameter.SourceColumn = column.ColumnName;
+                return sqlParameter;
+            }).ToArray();
+        }
+
+        private static string FormatParametername(string name)
+        {
+            return string.Format("@{0}", name.Replace(".", null));
+        }
+
+        private static string RemoveExtraSpacing(string source)
+        {
+            string pattern = @"'([^']|'')*'|[ ]{2,}";
+            MatchCollection matches = Regex.Matches(source, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            int skip = 0;
+            foreach (Match matche in matches.Cast<Match>().Where(match => !match.Value.StartsWith("'") && !match.Value.EndsWith("'")))
+            {
+                int index = matche.Index - skip;
+                source = string.Concat(source.Substring(0, index), " ", source.Substring(index + matche.Length));
+                skip += matche.Length - 1;
+            }
+
+            return source;
+        }
+
+        private static string SimpleRequestCleanUp(string source)
+        {
+            //string pattern = @"('(''|[^'])*')|([\r|\n][\s| ]*[\r|\n])|(--[^\r\n]*)|(/\*[\w\W]*?(?=\*/)\*/)";
+            string pattern = @"('(''|[^'])*')|[\t\r\n]|(--[^\r\n]*)|(/\*[\w\W]*?(?=\*/)\*/)";
+            MatchCollection matches = Regex.Matches(source, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+            int skip = 0;
+            foreach (Match matche in matches.Cast<Match>().Where(match => !match.Value.StartsWith("'") && !match.Value.EndsWith("'")))
+            {
+                int index = matche.Index - skip;
+                source = string.Concat(source.Substring(0, index), " ", source.Substring(index + matche.Length));
+                skip += matche.Length - 1;
+            }
+
+            return source;
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(this.logger != null);
         }
     }
 }

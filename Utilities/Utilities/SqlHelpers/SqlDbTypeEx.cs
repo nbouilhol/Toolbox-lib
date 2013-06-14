@@ -6,7 +6,7 @@ namespace Utilities.SqlHelpers
 {
     internal static class SqlDbTypeEx
     {
-        private static readonly Dictionary<SqlDbType, Type> Map = new Dictionary<SqlDbType, Type>
+        private static readonly Lazy<Dictionary<SqlDbType, Type>> Map = new Lazy<Dictionary<SqlDbType, Type>>(() => new Dictionary<SqlDbType, Type>
                                                                       {
                                                                             { SqlDbType.BigInt, typeof(long)},
                                                                             { SqlDbType.Binary, typeof(byte[]) },
@@ -39,10 +39,34 @@ namespace Utilities.SqlHelpers
                                                                             { SqlDbType.VarChar, typeof(string)},
                                                                             { SqlDbType.Variant, typeof(object)},
                                                                             { SqlDbType.Xml, typeof(string)}
-                                                                      };
+                                                                      });
+
+        private static readonly Lazy<Dictionary<Type, SqlDbType>> MapInverse = new Lazy<Dictionary<Type, SqlDbType>>(() => new Dictionary<Type, SqlDbType>
+                                                                      {
+                                                                            { typeof(long), SqlDbType.BigInt},
+                                                                            { typeof(byte[]), SqlDbType.VarBinary },
+                                                                            { typeof(bool), SqlDbType.Bit},
+                                                                            { typeof(string), SqlDbType.NVarChar},
+                                                                            { typeof(DateTime), SqlDbType.DateTime},
+                                                                            { typeof(decimal), SqlDbType.Decimal},
+                                                                            { typeof(double), SqlDbType.Float},
+                                                                            { typeof(int), SqlDbType.Int},
+                                                                            { typeof(float), SqlDbType.Real},
+                                                                            { typeof(short), SqlDbType.SmallInt},
+                                                                            { typeof(object), SqlDbType.Variant},
+                                                                            { typeof(TimeSpan), SqlDbType.Time},
+                                                                            { typeof(byte), SqlDbType.TinyInt},
+                                                                            { typeof(Guid), SqlDbType.UniqueIdentifier}
+                                                                      });
+
         public static Type ToClrType(this SqlDbType sqlDbType)
         {
-            return Map[sqlDbType];
+            return Map.Value[sqlDbType];
+        }
+
+        public static SqlDbType ToSqlType(this Type type)
+        {
+            return MapInverse.Value[type];
         }
     }
 }

@@ -92,5 +92,36 @@ namespace Utilities.Extensions
         }
 
         private class TypeToIgnore { }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesInfoWithInterfaces(this Type type, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public)
+        {
+            PropertyInfoComparer comparer = new PropertyInfoComparer();
+            return type.GetProperties(flags).Concat(type.GetPropertiesInfoFromInterface()).Distinct(comparer);
+        }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesInfoFromInterface(this Type type, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public)
+        {
+            return type.GetInterfaces().SelectMany(@interface => @interface.GetProperties(flags));
+        }
+    }
+
+    public class PropertyInfoComparer : IEqualityComparer<PropertyInfo>
+    {
+        #region IEqualityComparer<PropertyInfo> Members
+
+        public bool Equals(PropertyInfo x, PropertyInfo y)
+        {
+            if (x == null && y == null) return true;
+            if (x == null || y == null) return false;
+            return x.Name == y.Name;
+        }
+
+        public int GetHashCode(PropertyInfo obj)
+        {
+            if (obj == null) return 0;
+            return obj.Name.GetHashCode();
+        }
+
+        #endregion IEqualityComparer<PropertyInfo> Members
     }
 }

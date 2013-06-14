@@ -10,6 +10,7 @@ namespace Utilities.Helpers
         private readonly ConcurrentStack<Tuple<Action, Action>> undoStack = new ConcurrentStack<Tuple<Action, Action>>();
 
         public bool CanUndo { get { return undoStack.Any(); } }
+
         public bool CanRedo { get { return doStack.Any(); } }
 
         public void DoAndAdd(Action doAction, Action undoAction)

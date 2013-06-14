@@ -8,6 +8,7 @@
         {
             this._sqlQueryRequest = _sqlQueryRequest;
         }
+
         public virtual SqlWhereOperator Where(SqlComparisonBuilder sqlComparison)
         {
             if (sqlComparison == null || sqlComparison.QuerySqlComparison == null || sqlComparison.QuerySqlComparison.Length == 0)

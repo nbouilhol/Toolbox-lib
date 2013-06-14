@@ -26,8 +26,11 @@ namespace Utilities.AOP
         }
 
         public T RealObject { get { return source; } }
+
         protected Type TargetType { get { return type; } }
+
         protected T Instance { get { return source; } }
+
         protected BindingFlags BindingFlags
         {
             get { return BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic; }
@@ -153,7 +156,7 @@ namespace Utilities.AOP
             return RealObject.ToString();
         }
 
-        #endregion
+        #endregion DynamicObject
 
         #region AOP
 
@@ -173,12 +176,23 @@ namespace Utilities.AOP
             }
         }
 
-        public virtual void OnEntry(T source, string methodName, object[] args) { }
-        public virtual void OnExit(T source, string methodName, object[] args, object result) { }
-        public virtual void OnException(T source, string methodName, object[] args, Exception ex) { }
-        public virtual void OnSuccess(T source, string methodName, object[] args, object result) { }
+        public virtual void OnEntry(T source, string methodName, object[] args)
+        {
+        }
 
-        #endregion
+        public virtual void OnExit(T source, string methodName, object[] args, object result)
+        {
+        }
+
+        public virtual void OnException(T source, string methodName, object[] args, Exception ex)
+        {
+        }
+
+        public virtual void OnSuccess(T source, string methodName, object[] args, object result)
+        {
+        }
+
+        #endregion AOP
 
         private MethodInfo GetMethodInfo(Type type, string methodName)
         {

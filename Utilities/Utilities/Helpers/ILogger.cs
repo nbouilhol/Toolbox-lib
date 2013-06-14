@@ -1,5 +1,4 @@
-﻿
-namespace Utilities.Helpers
+﻿namespace Utilities.Helpers
 {
     public interface ILogger
     {

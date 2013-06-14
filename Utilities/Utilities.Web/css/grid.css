@@ -1,0 +1,47 @@
+﻿.datatable-thead a
+{
+    background-color: inherit !important;
+}
+.dataTables_wrapper .even
+{
+    background-color: #FFF;
+}
+.dataTables_wrapper .odd
+{
+    background-color: #F5F8F9;
+}
+.dataTables_wrapper .odd:hover
+{
+    background-color: #D5E5F2;
+}
+.dataTables_wrapper .even:hover
+{
+    background-color: #D5E5F2;
+}
+.dataTables_wrapper .center
+{
+    text-align: center;
+    min-width: 5.3em;
+}
+.dataTables_wrapper .left
+{
+    text-align: left;
+}
+.dataTables_wrapper .right
+{
+    text-align: right;
+}
+.dataTables_wrapper .button
+{
+    padding: 3px 5px !important;
+    font-size: .65em;
+}
+.dataTables_wrapper .num
+{
+    display: inline-block;
+    width: 50%;
+}
+.dataTables_wrapper
+{
+    white-space: nowrap;
+}

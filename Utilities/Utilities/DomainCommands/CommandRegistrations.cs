@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
-using System.Collections.Concurrent;
 
 namespace Utilities.DomainCommands
 {
@@ -27,13 +25,9 @@ namespace Utilities.DomainCommands
             IEnumerable<Type> interfaceTypes = GetHandlerInterfaces<THandler>(handler);
 
             if (interfaceTypes.Any(filterByICommandHandler))
-            {
-                commandHandlers.TryAdd(interfaceTypes.FirstOrDefault(filterByICommandHandler), handler as ICommandHandler<dynamic>);
-            }
+                commandHandlers.TryAdd(interfaceTypes.FirstOrDefault(filterByICommandHandler), new List<ICommandHandler<dynamic>> { handler as ICommandHandler<dynamic> });
             else if (interfaceTypes.Any(filterByIValidationHandler))
-            {
-                validationHandlers.TryAdd(interfaceTypes.FirstOrDefault(filterByIValidationHandler), handler as IValidationHandler<dynamic>);
-            }
+                validationHandlers.TryAdd(interfaceTypes.FirstOrDefault(filterByIValidationHandler), new List<IValidationHandler<dynamic>> { handler as IValidationHandler<dynamic> });
 
             return this;
         }

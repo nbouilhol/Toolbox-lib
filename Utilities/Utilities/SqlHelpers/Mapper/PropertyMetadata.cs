@@ -32,7 +32,7 @@ namespace Utilities.SqlHelpers.Mapper
             Contract.Invariant(getter != null);
         }
 
-        static string MapPropertyName(PropertyInfo property)
+        private static string MapPropertyName(PropertyInfo property)
         {
             var attribute = (ColumnAttribute)Attribute.GetCustomAttribute(property, typeof(ColumnAttribute));
 
@@ -119,7 +119,7 @@ namespace Utilities.SqlHelpers.Mapper
             Contract.Invariant(getter != null);
         }
 
-        static string MapPropertyName(PropertyInfo property)
+        private static string MapPropertyName(PropertyInfo property)
         {
             var attribute = (ColumnAttribute)Attribute.GetCustomAttribute(property, typeof(ColumnAttribute));
 

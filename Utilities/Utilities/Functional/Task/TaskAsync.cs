@@ -57,9 +57,9 @@ namespace Utilities.Functional.Task
             if (disposing) if (this.sysTask != null) this.sysTask.Dispose();
         }
 
-        ~TaskAsync()
-        {
-            Dispose(false);
-        }
+        //~TaskAsync()
+        //{
+        //    Dispose(false);
+        //}
     }
 }

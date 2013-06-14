@@ -67,9 +67,9 @@ namespace Utilities.Functional.Task
                     this.composedTasks.Dispose();
         }
 
-        ~TaskComposite()
-        {
-            Dispose(false);
-        }
+        //~TaskComposite()
+        //{
+        //    Dispose(false);
+        //}
     }
 }

@@ -57,7 +57,7 @@ namespace Utilities.SqlHelpers.Mapper
             get { return -1; }
         }
 
-        #endregion
+        #endregion IDataReader Members
 
         #region IDisposable Members
 
@@ -72,7 +72,7 @@ namespace Utilities.SqlHelpers.Mapper
             if (disposing) if (this.dataEnumerator != null) this.dataEnumerator.Dispose();
         }
 
-        #endregion
+        #endregion IDisposable Members
 
         #region IDataRecord Members
 
@@ -206,6 +206,6 @@ namespace Utilities.SqlHelpers.Mapper
             get { throw new NotImplementedException(); }
         }
 
-        #endregion
+        #endregion IDataRecord Members
     }
 }

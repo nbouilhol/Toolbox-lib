@@ -1,23 +1,21 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Utilities
+namespace Utilities.Extensions
 {
     public static class FuncExtension
     {
-        public static Func<TArg, TResult> Memoize<TArg, TResult>(this Func<TArg, TResult> f)
+        public static Func<TKey, TResult> Memoize<TKey, TResult>(this Func<TKey, TResult> f)
         {
-            var map = new Dictionary<TArg, TResult>();
-            return arg =>
-            {
-                TResult value;
-                if (map.TryGetValue(arg, out value))
-                    return value;
-                value = f(arg);
-                map.Add(arg, value);
-                return value;
-            };
+            return f.Memoize(EqualityComparer<TKey>.Default);
+        }
+
+        public static Func<TKey, TResult> Memoize<TKey, TResult>(this Func<TKey, TResult> f, IEqualityComparer<TKey> equalityComparer)
+        {
+            ConcurrentDictionary<TKey, Lazy<TResult>> cache = new ConcurrentDictionary<TKey, Lazy<TResult>>(equalityComparer);
+            return key => cache.GetOrAdd(key, new Lazy<TResult>(() => f(key))).Value;
         }
 
         public static System.Threading.Tasks.Task Using<T>(Func<T> disposableAcquisition, Action<T> action) where T : IDisposable

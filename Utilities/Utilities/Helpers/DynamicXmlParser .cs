@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Xml;
 using System.Xml.Linq;
+using Utilities.Extensions;
 
 namespace Utilities
 {
@@ -86,7 +87,6 @@ namespace Utilities
 				{ typeof(ulong), s => !string.IsNullOrEmpty(s) ? XmlConvert.ToUInt64(s) : default(ulong) },
 			};
         }
-
     }
 
     public class DynamicXmlElement : DynamicObject, IEnumerable<DynamicObject>
