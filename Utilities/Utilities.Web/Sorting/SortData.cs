@@ -5,12 +5,9 @@ namespace Mvc.Helper.Sorting
     [Serializable]
     public class SortData
     {
-        public string Column { get; set; }
-
-        public SortDirection? Direction { get; set; }
-
         public SortData()
-        { }
+        {
+        }
 
         public SortData(string column)
         {
@@ -23,5 +20,9 @@ namespace Mvc.Helper.Sorting
             Column = column;
             Direction = direction;
         }
+
+        public string Column { get; set; }
+
+        public SortDirection? Direction { get; set; }
     }
 }

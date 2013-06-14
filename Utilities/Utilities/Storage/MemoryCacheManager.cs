@@ -41,7 +41,8 @@ namespace Utilities.Storage
             if (_minutesBeforeDelete == default(int))
                 return;
 
-            _cache.Set(param.GetHashCode().ToString(CultureInfo.InvariantCulture), result, DateTimeOffset.Now.AddMinutes(_minutesBeforeDelete));
+            _cache.Set(param.GetHashCode().ToString(CultureInfo.InvariantCulture), result,
+                DateTimeOffset.Now.AddMinutes(_minutesBeforeDelete));
         }
 
         public void Clear(TKey param)

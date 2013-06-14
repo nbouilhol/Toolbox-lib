@@ -46,56 +46,16 @@ namespace Utilities.Storage
             if (items != null) Adds(items);
         }
 
-        [ContractInvariantMethod]
-        private void ObjectInvariant()
-        {
-            Contract.Invariant(_generator != null);
-            Contract.Invariant(_objects != null);
-        }
-
-        public ObjectPool<T> Add(T item)
-        {
-            _objects.TryAdd(item);
-            return this;
-        }
-
         public bool TryAdd(T item)
         {
             Add(item);
             return item != null;
         }
 
-        public ObjectPool<T> Adds(IEnumerable<T> items)
-        {
-            Contract.Requires(items != null);
-
-            items.ForEach(i => _objects.TryAdd(i));
-            return this;
-        }
-
-        public bool TryAdds(IEnumerable<T> items)
-        {
-            Contract.Requires(items != null);
-
-            return items.Select(TryAdd).All(i => i == true);
-        }
-
-        public T Take()
-        {
-            T value;
-            return _objects.TryTake(out value) ? value : _generator();
-        }
-
         public bool TryTake(out T item)
         {
             item = Take();
             return item != null;
-        }
-
-        public IEnumerable<T> Takes()
-        {
-            T value;
-            while (_objects.TryTake(out value)) yield return value;
         }
 
         public T[] ToArray()
@@ -136,6 +96,46 @@ namespace Utilities.Storage
         public object SyncRoot
         {
             get { return _objects.SyncRoot; }
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_generator != null);
+            Contract.Invariant(_objects != null);
+        }
+
+        public ObjectPool<T> Add(T item)
+        {
+            _objects.TryAdd(item);
+            return this;
+        }
+
+        public ObjectPool<T> Adds(IEnumerable<T> items)
+        {
+            Contract.Requires(items != null);
+
+            items.ForEach(i => _objects.TryAdd(i));
+            return this;
+        }
+
+        public bool TryAdds(IEnumerable<T> items)
+        {
+            Contract.Requires(items != null);
+
+            return items.Select(TryAdd).All(i => i);
+        }
+
+        public T Take()
+        {
+            T value;
+            return _objects.TryTake(out value) ? value : _generator();
+        }
+
+        public IEnumerable<T> Takes()
+        {
+            T value;
+            while (_objects.TryTake(out value)) yield return value;
         }
     }
 }

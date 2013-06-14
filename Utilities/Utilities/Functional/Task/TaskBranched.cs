@@ -5,9 +5,9 @@ namespace Utilities.Functional.Task
 {
     public class TaskBranched : ITask
     {
+        private readonly ITask falseTask;
         private readonly Func<bool> taskShouldBeDone;
         private readonly ITask trueTask;
-        private readonly ITask falseTask;
 
         public TaskBranched(ITask trueTask, ITask falseTask, Func<bool> predicate)
         {
@@ -20,20 +20,20 @@ namespace Utilities.Functional.Task
             this.falseTask = falseTask;
         }
 
-        [ContractInvariantMethod]
-        private void ObjectInvariant()
-        {
-            Contract.Invariant(taskShouldBeDone != null);
-            Contract.Invariant(trueTask != null);
-            Contract.Invariant(falseTask != null);
-        }
-
         public void Do()
         {
             if (taskShouldBeDone())
                 trueTask.Do();
             else
                 falseTask.Do();
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(taskShouldBeDone != null);
+            Contract.Invariant(trueTask != null);
+            Contract.Invariant(falseTask != null);
         }
     }
 }

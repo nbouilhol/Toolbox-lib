@@ -10,9 +10,9 @@ namespace Utilities
     {
         public EnumList()
         {
-            Contract.Requires(typeof(T).IsEnum);
+            Contract.Requires(typeof (T).IsEnum);
 
-            if (!typeof(T).IsEnum)
+            if (!typeof (T).IsEnum)
             {
                 throw new ArgumentException("Generic parameter must be enum");
             }
@@ -20,12 +20,12 @@ namespace Utilities
 
         public virtual IEnumerator<T> GetEnumerator()
         {
-            return Enum.GetValues(typeof(T)).Cast<T>().GetEnumerator();
+            return Enum.GetValues(typeof (T)).Cast<T>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<T>)this).GetEnumerator();
+            return ((IEnumerable<T>) this).GetEnumerator();
         }
     }
 }

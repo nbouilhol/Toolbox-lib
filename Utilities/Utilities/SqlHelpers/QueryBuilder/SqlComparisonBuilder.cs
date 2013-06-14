@@ -7,14 +7,24 @@ namespace Utilities.QueryBuilder
     {
         private readonly StringBuilder querySqlComparison;
 
-        public StringBuilder QuerySqlComparison { get { return querySqlComparison; } }
+        public SqlComparisonBuilder(StringBuilder querySqlComparison)
+        {
+            this.querySqlComparison = querySqlComparison;
+        }
 
-        public static SqlComparisonBuilder Equals(string toTableName, string toColumnName, string fromTableName, string fromColumnName)
+        public StringBuilder QuerySqlComparison
+        {
+            get { return querySqlComparison; }
+        }
+
+        public static SqlComparisonBuilder Equals(string toTableName, string toColumnName, string fromTableName,
+            string fromColumnName)
         {
             return new SqlComparisonOperator().Equals(toTableName, toColumnName, fromTableName, fromColumnName);
         }
 
-        public static SqlComparisonBuilder Equals(string tableName, string fieldName, object value, DbType? dbType = null)
+        public static SqlComparisonBuilder Equals(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             return new SqlComparisonOperator().Equals(tableName, fieldName, value, dbType);
         }
@@ -24,22 +34,26 @@ namespace Utilities.QueryBuilder
             return new SqlComparisonOperator().In(tableName, fieldName, values, dbType);
         }
 
-        public static SqlComparisonBuilder LessOrEquals(string tableName, string fieldName, object value, DbType? dbType = null)
+        public static SqlComparisonBuilder LessOrEquals(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             return new SqlComparisonOperator().LessOrEquals(tableName, fieldName, value, dbType);
         }
 
-        public static SqlComparisonBuilder LessThan(string tableName, string fieldName, object value, DbType? dbType = null)
+        public static SqlComparisonBuilder LessThan(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             return new SqlComparisonOperator().LessThan(tableName, fieldName, value, dbType);
         }
 
-        public static SqlComparisonBuilder GreaterOrEquals(string tableName, string fieldName, object value, DbType? dbType = null)
+        public static SqlComparisonBuilder GreaterOrEquals(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             return new SqlComparisonOperator().GreaterOrEquals(tableName, fieldName, value, dbType);
         }
 
-        public static SqlComparisonBuilder GreaterThan(string tableName, string fieldName, object value, DbType? dbType = null)
+        public static SqlComparisonBuilder GreaterThan(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             return new SqlComparisonOperator().GreaterThan(tableName, fieldName, value, dbType);
         }
@@ -54,14 +68,10 @@ namespace Utilities.QueryBuilder
             return new SqlComparisonOperator().Like(tableName, fieldName, value);
         }
 
-        public static SqlComparisonBuilder NotEquals(string tableName, string fieldName, object value, DbType? dbType = null)
+        public static SqlComparisonBuilder NotEquals(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             return new SqlComparisonOperator().NotEquals(tableName, fieldName, value, dbType);
-        }
-
-        public SqlComparisonBuilder(StringBuilder querySqlComparison)
-        {
-            this.querySqlComparison = querySqlComparison;
         }
 
         public SqlComparisonOperator And()

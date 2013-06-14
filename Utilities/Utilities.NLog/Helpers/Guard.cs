@@ -10,7 +10,7 @@ namespace Utilities.NLog
     [DebuggerStepThrough]
     public static class Guard
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         public static void RequireNotNull<T>(Expression<Func<T>> reference, T value)
         {
@@ -24,7 +24,7 @@ namespace Utilities.NLog
         {
             Contract.Requires(value.Length != 0);
 
-            RequireNotNull<string>(reference, value);
+            RequireNotNull(reference, value);
             if (value.Length == 0)
                 throw new ArgumentException(GetParameterName(reference), "Parameter cannot be empty.");
         }
@@ -54,7 +54,7 @@ namespace Utilities.NLog
 
             if (assertion)
             {
-                ArgumentException exception = new ArgumentException(message);
+                var exception = new ArgumentException(message);
                 logger.ErrorException(string.Format("Requires : {0} : Failed", message), exception);
                 throw exception;
             }
@@ -66,7 +66,7 @@ namespace Utilities.NLog
 
             if (value == null)
             {
-                ArgumentNullException exception = new ArgumentNullException(message);
+                var exception = new ArgumentNullException(message);
                 logger.ErrorException(string.Format("Require Not Null : {0} : Failed", message), exception);
                 throw exception;
             }
@@ -93,8 +93,8 @@ namespace Utilities.NLog
 
         private static string GetParameterName(Expression reference)
         {
-            LambdaExpression lambda = reference as LambdaExpression;
-            MemberExpression member = lambda.Body as MemberExpression;
+            var lambda = reference as LambdaExpression;
+            var member = lambda.Body as MemberExpression;
 
             return member.Member.Name;
         }

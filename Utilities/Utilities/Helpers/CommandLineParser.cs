@@ -10,10 +10,13 @@ namespace Utilities.Helpers
     [Export]
     public class CommandLineParser
     {
-        private static readonly Lazy<CommandLineParser> InstanceCache = new Lazy<CommandLineParser>(() => new CommandLineParser());
+        private static readonly Lazy<CommandLineParser> InstanceCache =
+            new Lazy<CommandLineParser>(() => new CommandLineParser());
 
         [ImportingConstructor]
-        public CommandLineParser() : this(Environment.CommandLine) { }
+        public CommandLineParser() : this(Environment.CommandLine)
+        {
+        }
 
         public CommandLineParser(string commandLine)
         {
@@ -29,7 +32,10 @@ namespace Utilities.Helpers
 
         public IDictionary<string, string> Switches { get; private set; }
 
-        public string this[string name] { get { return Switches.TryGetValue(name); } }
+        public string this[string name]
+        {
+            get { return Switches.TryGetValue(name); }
+        }
 
         public static CommandLineParser Create()
         {
@@ -64,7 +70,8 @@ namespace Utilities.Helpers
             var regex = new Regex(Constants.NonNamedSwitchPatternConstant, RegexOptions.IgnorePatternWhitespace);
             MatchCollection matchCollection = regex.Matches(commandLine);
 
-            return matchCollection.Cast<Match>().ToDictionary(match => match.Groups["key"].Value, match => match.Groups["value"].Value);
+            return matchCollection.Cast<Match>()
+                .ToDictionary(match => match.Groups["key"].Value, match => match.Groups["value"].Value);
         }
 
         public static class Constants
@@ -72,10 +79,18 @@ namespace Utilities.Helpers
             public const string ApplicationNamePatternConstant = StringArgumentPatternConstant;
             public const string BooleanArgumentPatternConstant = @"(?<value>(\+|-){0,1})";
             public const string IntegerArgumentPatternConstant = @"(?<value>(-/\+)?[0-9]+)";
-            public const string NonNamedSwitchPatternConstant = SwitchKeyValuePrefixPatternConstant + "(?<switch>" + SwitchKeyPrefixCharacterPatternPrefix + "(?<key>\\w+)" + SwitchKeyValueDividerPatternConstant + StringArgumentPatternConstant + ")" + SwitchKeyValueSuffixPatternConstant;
+
+            public const string NonNamedSwitchPatternConstant =
+                SwitchKeyValuePrefixPatternConstant + "(?<switch>" + SwitchKeyPrefixCharacterPatternPrefix +
+                "(?<key>\\w+)" + SwitchKeyValueDividerPatternConstant + StringArgumentPatternConstant + ")" +
+                SwitchKeyValueSuffixPatternConstant;
+
             public const string NumberArgumentPatternConstant = @"(?<value>(-/\+)?([0-9]+)(\.[0-9]+))?";
             public const string ParameterPatternConstant = @"((\s*(""(?<param>.+?)""|(?<param>\S+))))";
-            public const string StringArgumentPatternConstant = "(((?<quote>[\"'])(?<value>(?:\\\\\\k<quote>|.)*?)\\k<quote>)  |  ((?<value>\\S+)))";
+
+            public const string StringArgumentPatternConstant =
+                "(((?<quote>[\"'])(?<value>(?:\\\\\\k<quote>|.)*?)\\k<quote>)  |  ((?<value>\\S+)))";
+
             public const string SwitchKeyPrefixCharacterPatternPrefix = "(?<switchPrefix>(?:/|-{1,2}))";
             public const string SwitchKeyValueDividerPatternConstant = @"(?:[:=]|\s+)";
             public const string SwitchKeyValuePrefixPatternConstant = @"(\s+|^)";

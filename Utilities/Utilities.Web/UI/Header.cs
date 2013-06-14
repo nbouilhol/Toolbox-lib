@@ -11,9 +11,9 @@ namespace Mvc.Helper.UI
     {
         private const string selectFormat = @"Afficher {0} éléments";
         private const string textSearch = @"Rechercher : ";
-        private readonly Func<int, string, string> urlBuilder;
         private readonly IPagination pagination;
         private readonly ISearch search;
+        private readonly Func<int, string, string> urlBuilder;
 
         public Header(IPagination pagination, ISearch search, Func<int, string, string> urlBuilder)
         {
@@ -23,8 +23,11 @@ namespace Mvc.Helper.UI
         }
 
         public Header(IGrid grid)
-            : this(grid.Pagination, grid.Search, (s, i) => grid.Url(grid.Pagination.PageNumber, s, grid.Sort.Column, grid.Sort.Direction, i))
-        { }
+            : this(
+                grid.Pagination, grid.Search,
+                (s, i) => grid.Url(grid.Pagination.PageNumber, s, grid.Sort.Column, grid.Sort.Direction, i))
+        {
+        }
 
         public string ToHtmlString()
         {
@@ -38,14 +41,20 @@ namespace Mvc.Helper.UI
 
         private string Render()
         {
-            return string.Format(@"<div class='grid-header fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix'>{0}</div>", RenderBody());
+            return
+                string.Format(
+                    @"<div class='grid-header fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix'>{0}</div>",
+                    RenderBody());
         }
 
         private string RenderBody()
         {
             var builder = new StringBuilder();
-            builder.AppendFormat(@"<div class='dataTables_length'>{0}</div>", string.Format(selectFormat, RenderSelect()));
-            builder.AppendFormat(@"<div class='dataTables_filter'>{0}<input type='search' href='{1}' value='{2}' /></div>", textSearch, urlBuilder(pagination.PageSize, "{0}"), search.Input);
+            builder.AppendFormat(@"<div class='dataTables_length'>{0}</div>",
+                string.Format(selectFormat, RenderSelect()));
+            builder.AppendFormat(
+                @"<div class='dataTables_filter'>{0}<input type='search' href='{1}' value='{2}' /></div>", textSearch,
+                urlBuilder(pagination.PageSize, "{0}"), search.Input);
             return builder.ToString();
         }
 
@@ -66,7 +75,8 @@ namespace Mvc.Helper.UI
 
         private void RenderOption(StringBuilder builder, int size)
         {
-            builder.AppendFormat(@"<option value='{0}'{1}>{2}</option>", urlBuilder(size, search.Input), pagination.PageSize == size ? " selected" : "", size);
+            builder.AppendFormat(@"<option value='{0}'{1}>{2}</option>", urlBuilder(size, search.Input),
+                pagination.PageSize == size ? " selected" : "", size);
         }
     }
 }

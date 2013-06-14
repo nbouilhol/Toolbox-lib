@@ -35,7 +35,7 @@ namespace Utilities
 
     public class TplAsyncOperation<TArg, TResult>
     {
-        private Func<TArg, Task<TResult>> operation;
+        private readonly Func<TArg, Task<TResult>> operation;
 
         public TplAsyncOperation(Func<TArg, Task<TResult>> operation)
         {
@@ -55,7 +55,7 @@ namespace Utilities
         {
             Contract.Requires(result != null);
 
-            return ((Task<TResult>)result).Result;
+            return ((Task<TResult>) result).Result;
         }
 
         [ContractInvariantMethod]

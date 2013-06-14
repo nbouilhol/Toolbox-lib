@@ -9,17 +9,18 @@ namespace Mvc.Helper
 {
     public class MvcChart : IDisposable, IHtmlString
     {
-        public Chart Chart { get; set; }
-
         public MvcChart(Page page, Chart chart)
         {
             chart.Page = page;
             Chart = chart;
         }
 
-        public override string ToString()
+        public Chart Chart { get; set; }
+
+        public void Dispose()
         {
-            return RenderChart();
+            Chart.Dispose();
+            GC.SuppressFinalize(Chart);
         }
 
         public string ToHtmlString()
@@ -27,24 +28,23 @@ namespace Mvc.Helper
             return RenderChart();
         }
 
+        public override string ToString()
+        {
+            return RenderChart();
+        }
+
         /// <summary>
-        /// Renders control to a string.
+        ///     Renders control to a string.
         /// </summary>
         /// <returns></returns>
         public string RenderChart()
         {
-            using (StringWriter swriter = new StringWriter(CultureInfo.CurrentCulture))
+            using (var swriter = new StringWriter(CultureInfo.CurrentCulture))
             {
-                using (HtmlTextWriter writer = new HtmlTextWriter(swriter))
+                using (var writer = new HtmlTextWriter(swriter))
                     Chart.RenderControl(writer);
                 return swriter.ToString();
             }
-        }
-
-        public void Dispose()
-        {
-            Chart.Dispose();
-            GC.SuppressFinalize(Chart);
         }
     }
 }

@@ -10,7 +10,8 @@ namespace Mvc.Helper
             return routes.MapRouteLowerCase(name, url, defaults, null);
         }
 
-        public static Route MapRouteLowerCase(this RouteCollection routes, string name, string url, object defaults, string constraints)
+        public static Route MapRouteLowerCase(this RouteCollection routes, string name, string url, object defaults,
+            string constraints)
         {
             Route route = new LowercaseRoute(url, new MvcRouteHandler())
             {
@@ -36,12 +37,14 @@ namespace Mvc.Helper
         {
         }
 
-        public LowercaseRoute(string url, RouteValueDictionary defaults, RouteValueDictionary constraints, IRouteHandler routeHandler)
+        public LowercaseRoute(string url, RouteValueDictionary defaults, RouteValueDictionary constraints,
+            IRouteHandler routeHandler)
             : base(url, defaults, constraints, routeHandler)
         {
         }
 
-        public LowercaseRoute(string url, RouteValueDictionary defaults, RouteValueDictionary constraints, RouteValueDictionary dataTokens, IRouteHandler routeHandler)
+        public LowercaseRoute(string url, RouteValueDictionary defaults, RouteValueDictionary constraints,
+            RouteValueDictionary dataTokens, IRouteHandler routeHandler)
             : base(url, defaults, constraints, dataTokens, routeHandler)
         {
         }

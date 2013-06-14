@@ -8,18 +8,18 @@ namespace Utilities.SqlHelpers
 {
     public class DynamicDataReader : DynamicObject
     {
-        private IDataReader dataReader;
-
-        protected BindingFlags BindingFlags
-        {
-            get { return BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic; }
-        }
+        private readonly IDataReader dataReader;
 
         public DynamicDataReader(IDataReader dataReader)
         {
             Contract.Requires(dataReader != null);
 
             this.dataReader = dataReader;
+        }
+
+        protected BindingFlags BindingFlags
+        {
+            get { return BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic; }
         }
 
         [ContractInvariantMethod]
@@ -30,7 +30,11 @@ namespace Utilities.SqlHelpers
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (binder == null) { result = null; return false; }
+            if (binder == null)
+            {
+                result = null;
+                return false;
+            }
             result = null;
 
             if (binder.Name == "IsClosed")
@@ -78,7 +82,9 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(methodName != null);
 
-            MethodInfo methodeInfo = typeof(IDataReader).BaseType != null ? typeof(IDataReader).BaseType.GetMethod(methodName, BindingFlags) : null;
+            MethodInfo methodeInfo = typeof (IDataReader).BaseType != null
+                ? typeof (IDataReader).BaseType.GetMethod(methodName, BindingFlags)
+                : null;
             return methodeInfo != null ? methodeInfo.Invoke(dataReader, args) : null;
         }
     }

@@ -7,11 +7,14 @@ namespace Utilities.AOP
     {
         private readonly Stopwatch _stopwatch = new Stopwatch();
 
-        public Stopwatch Stopwatch { get { return _stopwatch; } }
-
         public ProfilerWrapper(T source)
             : base(source)
         {
+        }
+
+        public Stopwatch Stopwatch
+        {
+            get { return _stopwatch; }
         }
 
         public override void OnEntry(T source, string methodName, object[] args)
@@ -22,7 +25,9 @@ namespace Utilities.AOP
         public override void OnExit(T source, string methodName, object[] args, object result)
         {
             _stopwatch.Stop();
-            if (Console.Out != null) Console.Out.WriteLine("Method({0}.{1}) call in {2} ms", typeof(T).Name, methodName, _stopwatch.Elapsed.TotalMilliseconds);
+            if (Console.Out != null)
+                Console.Out.WriteLine("Method({0}.{1}) call in {2} ms", typeof (T).Name, methodName,
+                    _stopwatch.Elapsed.TotalMilliseconds);
         }
     }
 

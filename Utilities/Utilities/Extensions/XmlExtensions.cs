@@ -7,19 +7,19 @@ namespace Utilities.Extensions
 {
     public static class XmlExtensions
     {
-        public static Nullable<int> ToInt(this XAttribute source)
+        public static int? ToInt(this XAttribute source)
         {
             if (source == null || source.Value == null) return null;
             return source.Value.ToInt();
         }
 
-        public static Nullable<bool> ToBool(this XAttribute source)
+        public static bool? ToBool(this XAttribute source)
         {
             if (source == null || source.Value == null) return null;
             return source.Value.ToBool();
         }
 
-        public static Nullable<DateTime> ToDateTime(this XAttribute source)
+        public static DateTime? ToDateTime(this XAttribute source)
         {
             if (source == null || source.Value == null) return null;
             DateTime result;
@@ -27,12 +27,12 @@ namespace Utilities.Extensions
             return null;
         }
 
-        public static Nullable<TEnum> ToEnum<TEnum>(this XAttribute source)
+        public static TEnum? ToEnum<TEnum>(this XAttribute source)
             where TEnum : struct
         {
             if (source == null || source.Value == null) return null;
             TEnum result;
-            if (Enum.TryParse<TEnum>(source.Value, out result)) return result;
+            if (Enum.TryParse(source.Value, out result)) return result;
             return null;
         }
 
@@ -48,7 +48,8 @@ namespace Utilities.Extensions
             return ExtractElements(parent, extract);
         }
 
-        public static IList<T> ExtractFlatElements<T>(this XElement source, string name, Func<XElement, IEnumerable<T>> extract)
+        public static IList<T> ExtractFlatElements<T>(this XElement source, string name,
+            Func<XElement, IEnumerable<T>> extract)
         {
             if (source == null) return new List<T>();
             XElement parent = source.Element(name);

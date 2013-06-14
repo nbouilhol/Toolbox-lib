@@ -4,7 +4,7 @@ namespace Utilities.QueryBuilder
 {
     public class SqlJoinBuilder
     {
-        private SqlQueryRequest _sqlQueryRequest;
+        private readonly SqlQueryRequest _sqlQueryRequest;
 
         public SqlJoinBuilder(SqlQueryRequest sqlQueryRequest)
         {

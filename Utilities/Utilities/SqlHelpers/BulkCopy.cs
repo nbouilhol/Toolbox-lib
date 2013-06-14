@@ -29,7 +29,8 @@ namespace Utilities.SqlHelpers
             WriteToServer(items.ToDataTable(PropertiesDescriptor<T>.Create()), options);
         }
 
-        public virtual void WriteToServer(IList<T> items, SqlBulkCopyOptions options, IEnumerable<SqlBulkCopyColumnMapping> columnMappings)
+        public virtual void WriteToServer(IList<T> items, SqlBulkCopyOptions options,
+            IEnumerable<SqlBulkCopyColumnMapping> columnMappings)
         {
             WriteToServer(items.ToDataTable(PropertiesDescriptor<T>.Create()), options, columnMappings);
         }
@@ -41,17 +42,21 @@ namespace Utilities.SqlHelpers
 
         public void WriteToServer(DataTable dataTable, SqlBulkCopyOptions options)
         {
-            IEnumerable<SqlBulkCopyColumnMapping> columnMappings = dataTable.Columns.Cast<DataColumn>().Select(column => new SqlBulkCopyColumnMapping(column.ColumnName, column.ColumnName));
+            IEnumerable<SqlBulkCopyColumnMapping> columnMappings =
+                dataTable.Columns.Cast<DataColumn>()
+                    .Select(column => new SqlBulkCopyColumnMapping(column.ColumnName, column.ColumnName));
             WriteToServer(dataTable, options, columnMappings);
         }
 
-        public void WriteToServer(DataTable dataTable, SqlBulkCopyOptions options, IEnumerable<SqlBulkCopyColumnMapping> columnMappings)
+        public void WriteToServer(DataTable dataTable, SqlBulkCopyOptions options,
+            IEnumerable<SqlBulkCopyColumnMapping> columnMappings)
         {
             if (dataTable == null || dataTable.Columns.Count == 0) return;
-            if (string.IsNullOrWhiteSpace(destinationTableName)) throw new ArgumentException("destinationTableName cannot be null or empty");
+            if (string.IsNullOrWhiteSpace(destinationTableName))
+                throw new ArgumentException("destinationTableName cannot be null or empty");
 
-            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString, options))
+            using (var sqlConnexion = new SqlConnection(connectionString))
+            using (var bulkCopy = new SqlBulkCopy(connectionString, options))
             {
                 bulkCopy.DestinationTableName = destinationTableName;
                 if (batchSize != 0) bulkCopy.BatchSize = batchSize;

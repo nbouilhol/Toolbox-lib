@@ -8,7 +8,7 @@ namespace Utilities.Extensions
     {
         public static decimal DistanceToInPercent(this string source, string target)
         {
-            return 1 - ((decimal)Levenshtein.CalculateDistance(source, target) / target.Length);
+            return 1 - ((decimal) Levenshtein.CalculateDistance(source, target)/target.Length);
         }
 
         public static int DistanceTo(this string source, string target)
@@ -27,7 +27,7 @@ namespace Utilities.Extensions
         public static bool ToBool(this string source)
         {
             bool result;
-            return source != null && bool.TryParse(source, out result) ? result : false;
+            return source != null && bool.TryParse(source, out result) && result;
         }
 
         public static bool ToBool(this string source, bool defaultValue)
@@ -44,7 +44,7 @@ namespace Utilities.Extensions
             }
             catch (Exception)
             {
-                return default(int);
+                return default(short);
             }
         }
 

@@ -6,7 +6,8 @@ namespace Utilities.Functional
 {
     public static class ExpressionExtensions
     {
-        public static Expression<Func<T1, TCovariantResult>> ToCovariant<T1, TResult, TCovariantResult>(this Expression<Func<T1, TResult>> expr)
+        public static Expression<Func<T1, TCovariantResult>> ToCovariant<T1, TResult, TCovariantResult>(
+            this Expression<Func<T1, TResult>> expr)
             where TResult : TCovariantResult
         {
             Contract.Requires(expr != null);
@@ -66,7 +67,7 @@ namespace Utilities.Functional
             Contract.Requires(f != null);
             Contract.Requires(p != null);
 
-            return SelectMany<A, C>(k, a => Select<B, C>(p(a), b => f(a, b)));
+            return SelectMany(k, a => Select(p(a), b => f(a, b)));
         }
 
         public static Func<A, C> Select<A, B, C>(this Func<A, B> f, Func<B, C> g)
@@ -88,7 +89,7 @@ namespace Utilities.Functional
             Contract.Requires(p != null);
             Contract.Requires(k != null);
 
-            return SelectMany<A, D, C>(f, b => Select<C, B, D>(p(b), x => k(b, x)));
+            return SelectMany(f, b => Select(p(b), x => k(b, x)));
         }
 
         public static Func<B, A, C> Flip<A, B, C>(this Func<A, B, C> f)

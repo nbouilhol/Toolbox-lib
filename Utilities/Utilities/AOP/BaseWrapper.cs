@@ -15,20 +15,23 @@ namespace Utilities.AOP
         protected BaseWrapper(T source)
         {
             _source = source;
-            _type = typeof(T);
+            _type = typeof (T);
         }
 
-        [ContractInvariantMethod]
-        private void ObjectInvariant()
+        public T RealObject
         {
-            Contract.Invariant(_type != null);
+            get { return _source; }
         }
 
-        public T RealObject { get { return _source; } }
+        protected Type TargetType
+        {
+            get { return _type; }
+        }
 
-        protected Type TargetType { get { return _type; } }
-
-        protected T Instance { get { return _source; } }
+        protected T Instance
+        {
+            get { return _source; }
+        }
 
         protected BindingFlags BindingFlags
         {
@@ -44,7 +47,11 @@ namespace Utilities.AOP
 
         public override bool TryConvert(ConvertBinder binder, out object result)
         {
-            if (binder == null) { result = null; return false; }
+            if (binder == null)
+            {
+                result = null;
+                return false;
+            }
             result = binder.Type != null ? Convert.ChangeType(Instance, binder.Type) : Instance;
             return true;
         }
@@ -52,14 +59,21 @@ namespace Utilities.AOP
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             MemberInfo info = _type.GetMember(binder.Name, BindingFlags).FirstOrDefault();
-            if (info == null || !(info is FieldInfo || info is PropertyInfo)) { result = null; return false; }
+            if (info == null || !(info is FieldInfo || info is PropertyInfo))
+            {
+                result = null;
+                return false;
+            }
             result = info.Get(_source);
             return true;
         }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (string.IsNullOrEmpty(binder.Name)) { return false; }
+            if (string.IsNullOrEmpty(binder.Name))
+            {
+                return false;
+            }
 
             PropertyInfo property = _type.GetProperty(binder.Name, BindingFlags);
             if (property != null && property.CanWrite)
@@ -75,7 +89,11 @@ namespace Utilities.AOP
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder.Name == null) { result = null; return false; }
+            if (binder.Name == null)
+            {
+                result = null;
+                return false;
+            }
             OnEntry(_source, binder.Name, args);
 
             try
@@ -137,6 +155,12 @@ namespace Utilities.AOP
 
         #endregion AOP
 
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(_type != null);
+        }
+
         private MethodInfo GetMethodInfo(Type type, string methodName)
         {
             Contract.Requires(methodName != null);
@@ -166,9 +190,9 @@ namespace Utilities.AOP
         {
             Contract.Requires(memberInfo != null);
 
-            PropertyInfo info = memberInfo as PropertyInfo;
+            var info = memberInfo as PropertyInfo;
             if (info != null) return info.GetValue(source, null);
-            return ((FieldInfo)memberInfo).GetValue(source);
+            return ((FieldInfo) memberInfo).GetValue(source);
         }
 
         public static object Set<T>(this PropertyInfo propertyInfo, T source, object value)

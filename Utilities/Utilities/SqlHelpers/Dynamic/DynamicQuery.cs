@@ -32,7 +32,7 @@ namespace Utilities.SqlHelpers.Dynamic
 
         public bool IsQuery(string name)
         {
-            return Enum.GetNames(typeof(Method)).Any(name.StartsWith);
+            return Enum.GetNames(typeof (Method)).Any(name.StartsWith);
         }
 
         public object Execute(string name, object[] args)
@@ -55,12 +55,14 @@ namespace Utilities.SqlHelpers.Dynamic
 
         private dynamic FindBy(string name, object[] args)
         {
-            return Query.FindOneByDynamic(_connectionString, _table, BuildWhere(Method.Findby.ToString(), name, args), args != null ? ExtractParams(args) : null);
+            return Query.FindOneByDynamic(_connectionString, _table, BuildWhere(Method.Findby.ToString(), name, args),
+                args != null ? ExtractParams(args) : null);
         }
 
         private ICollection<dynamic> FindAllBy(string name, object[] args)
         {
-            return Query.FindAllByDynamic(_connectionString, _table, BuildWhere(Method.Findallby.ToString(), name, args), args != null ? ExtractParams(args) : null);
+            return Query.FindAllByDynamic(_connectionString, _table, BuildWhere(Method.Findallby.ToString(), name, args),
+                args != null ? ExtractParams(args) : null);
         }
 
         private static string BuildWhere(string method, string name, IEnumerable<object> args)
@@ -68,21 +70,29 @@ namespace Utilities.SqlHelpers.Dynamic
             Contract.Requires(name != null);
 
             IEnumerable<string> propertiesOperators = ExtractProperties(method, name);
-            IDictionary<string, string> propertiesRequests = args != null ? ExtractPropertiesWithRequests(method, name, args) : null;
+            IDictionary<string, string> propertiesRequests = args != null
+                ? ExtractPropertiesWithRequests(method, name, args)
+                : null;
 
-            return string.Join(" ", propertiesOperators.Select(property => propertiesRequests != null && propertiesRequests.ContainsKey(property) ? propertiesRequests.TryGetValue(property) : property));
+            return string.Join(" ",
+                propertiesOperators.Select(
+                    property =>
+                        propertiesRequests != null && propertiesRequests.ContainsKey(property)
+                            ? propertiesRequests.TryGetValue(property)
+                            : property));
         }
 
-        private static IDictionary<string, string> ExtractPropertiesWithRequests(string method, string name, IEnumerable<object> args)
+        private static IDictionary<string, string> ExtractPropertiesWithRequests(string method, string name,
+            IEnumerable<object> args)
         {
             Contract.Requires(!string.IsNullOrEmpty(method));
             Contract.Requires(!string.IsNullOrEmpty(name));
             Contract.Requires(args != null);
 
             return name.Replace(method, "")
-                .Split(new[] { Operator.And.ToString(), Operator.Or.ToString() }, StringSplitOptions.RemoveEmptyEntries)
-                .Zip(args, (property, arg) => new {property, arg })
-                .Select((x, index) => new {x.property, x.arg, index })
+                .Split(new[] {Operator.And.ToString(), Operator.Or.ToString()}, StringSplitOptions.RemoveEmptyEntries)
+                .Zip(args, (property, arg) => new {property, arg})
+                .Select((x, index) => new {x.property, x.arg, index})
                 .ToDictionary(x => x.property, x => ConvertParamToRequest(x.index, x.property, x.arg));
         }
 
@@ -136,7 +146,7 @@ namespace Utilities.SqlHelpers.Dynamic
             Contract.Requires(args != null);
 
             return args.Where(arg => !IsArray(arg)).SelectMany(arg => IsBetween(arg)
-                ? new object[] { ((dynamic)arg).Item1, ((dynamic)arg).Item2 }
+                ? new object[] {((dynamic) arg).Item1, ((dynamic) arg).Item2}
                 : arg.AsEnumerable()).ToArray();
         }
 

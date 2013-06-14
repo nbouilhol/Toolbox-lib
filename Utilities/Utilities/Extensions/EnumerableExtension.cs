@@ -16,7 +16,7 @@ namespace Utilities.Extensions
 
         public static List<T> InList<T>(this T item)
         {
-            return new List<T> { item };
+            return new List<T> {item};
         }
 
         public static List<T> WithItems<T>(this List<T> list, params T[] items)
@@ -30,7 +30,8 @@ namespace Utilities.Extensions
             return source.Select(item => Equals(item, toReplace) ? replaceWith : item);
         }
 
-        public static IEnumerable<TResult> SelectManySafe<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
+        public static IEnumerable<TResult> SelectManySafe<TSource, TResult>(this IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TResult>> selector)
         {
             Contract.Requires(source != null);
             Contract.Requires(selector != null);
@@ -48,7 +49,8 @@ namespace Utilities.Extensions
             return result;
         }
 
-        public static IEnumerable<T> Aggregate<T>(this IEnumerable<T> source, int following, Func<IEnumerable<T>, T> aggregate)
+        public static IEnumerable<T> Aggregate<T>(this IEnumerable<T> source, int following,
+            Func<IEnumerable<T>, T> aggregate)
         {
             Contract.Requires(source != null);
             Contract.Requires(aggregate != null);
@@ -70,7 +72,7 @@ namespace Utilities.Extensions
 
             int retVal = 0;
 
-            foreach (var item in items)
+            foreach (T item in items)
             {
                 if (predicate(item)) return retVal;
                 retVal++;
@@ -84,13 +86,14 @@ namespace Utilities.Extensions
             return source.MaxBy(selector, Comparer<TKey>.Default);
         }
 
-        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer)
+        public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector,
+            IComparer<TKey> comparer)
         {
             if (source == null) throw new ArgumentNullException("source");
             if (selector == null) throw new ArgumentNullException("selector");
             if (comparer == null) throw new ArgumentNullException("comparer");
 
-            using (var sourceIterator = source.GetEnumerator())
+            using (IEnumerator<TSource> sourceIterator = source.GetEnumerator())
             {
                 if (!sourceIterator.MoveNext()) throw new InvalidOperationException("Sequence contains no elements");
                 TSource max = sourceIterator.Current;

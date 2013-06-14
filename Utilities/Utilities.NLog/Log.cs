@@ -8,7 +8,7 @@ namespace Utilities.NLog
 {
     public static class Log
     {
-        private static Type logType = typeof(NullLog);
+        private static Type logType = typeof (NullLog);
         private static Func<ILog> builder;
         private static ILog testLogger;
 
@@ -24,7 +24,7 @@ namespace Utilities.NLog
 
         public static void InitializeWith<T>() where T : ILog, new()
         {
-            logType = typeof(T);
+            logType = typeof (T);
             builder = CreateActivatorDelegate<T>() as Func<ILog>;
         }
 
@@ -37,8 +37,8 @@ namespace Utilities.NLog
 
         private static Func<T> CreateActivatorDelegate<T>() where T : ILog, new()
         {
-            ConstructorInfo constructor = typeof(T).GetConstructor(Type.EmptyTypes);
-            if (constructor == null) return () => { throw MappingException.NoParameterlessConstructor(typeof(T)); };
+            ConstructorInfo constructor = typeof (T).GetConstructor(Type.EmptyTypes);
+            if (constructor == null) return () => { throw MappingException.NoParameterlessConstructor(typeof (T)); };
             return Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
         }
     }

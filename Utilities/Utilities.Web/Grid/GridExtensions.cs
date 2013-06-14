@@ -27,20 +27,22 @@ namespace Mvc.Helper.Grid
             return new LazyGrid<T>(source).SearchFor(input, filter);
         }
 
-        public static IGrid<TSource> BuildUrl<TSource>(this IGrid<TSource> grid, RequestContext context, string route, string action)
+        public static IGrid<TSource> BuildUrl<TSource>(this IGrid<TSource> grid, RequestContext context, string route,
+            string action)
         {
             return grid.BuildUrl(context, route, action);
         }
 
         /// <summary>
-        /// Need LinqKit
+        ///     Need LinqKit
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
         /// <param name="input"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public static IGrid<T> SearchFor<T>(this IQueryable<T> source, string input, Expression<Func<T, string, bool>> filter)
+        public static IGrid<T> SearchFor<T>(this IQueryable<T> source, string input,
+            Expression<Func<T, string, bool>> filter)
         {
             return new LazyGrid<T>(source).SearchFor(input, filter);
         }
@@ -55,27 +57,31 @@ namespace Mvc.Helper.Grid
             return new LazyGrid<T>(source).AsPagination(pageNumber, pageSize);
         }
 
-        public static IGrid<T> OrderBy<T, TKey>(this IQueryable<T> source, string propertyName, SortDirection? direction, Expression<Func<T, TKey>> keySelector)
+        public static IGrid<T> OrderBy<T, TKey>(this IQueryable<T> source, string propertyName, SortDirection? direction,
+            Expression<Func<T, TKey>> keySelector)
         {
             return new LazyGrid<T>(source).OrderBy(propertyName, direction, keySelector);
         }
 
-        public static IGrid<T> OrderBy<T, TKey>(this IQueryable<T> source, string propertyName, SortDirection? direction, Expression<Func<T, TKey>> keySelector, SortDirection? keySelectorDirection)
+        public static IGrid<T> OrderBy<T, TKey>(this IQueryable<T> source, string propertyName, SortDirection? direction,
+            Expression<Func<T, TKey>> keySelector, SortDirection? keySelectorDirection)
         {
             return new LazyGrid<T>(source).OrderBy(propertyName, direction, keySelector, keySelectorDirection);
         }
 
-        public static IGrid<T> OrderBy<T>(this IQueryable<T> source, string propertyName, SortDirection? direction, string defaultPropertyName, SortDirection? defaultDirection)
+        public static IGrid<T> OrderBy<T>(this IQueryable<T> source, string propertyName, SortDirection? direction,
+            string defaultPropertyName, SortDirection? defaultDirection)
         {
             return new LazyGrid<T>(source).OrderBy(propertyName, direction, defaultPropertyName, defaultDirection);
         }
 
-        public static IQueryable<T> OrderBy<T>(this IQueryable<T> datasource, string propertyName, SortDirection direction)
+        public static IQueryable<T> OrderBy<T>(this IQueryable<T> datasource, string propertyName,
+            SortDirection direction)
         {
             if (string.IsNullOrEmpty(propertyName))
                 return datasource;
-            var type = typeof(T);
-            var parameter = Expression.Parameter(type, "p");
+            Type type = typeof (T);
+            ParameterExpression parameter = Expression.Parameter(type, "p");
             Expression expr = parameter;
             foreach (string prop in propertyName.Split('.'))
             {
@@ -83,25 +89,27 @@ namespace Mvc.Helper.Grid
                 expr = Expression.Property(expr, pi);
                 type = pi.PropertyType;
             }
-            var orderByExp = Expression.Lambda(typeof(Func<,>).MakeGenericType(typeof(T), type), expr, parameter);
+            LambdaExpression orderByExp = Expression.Lambda(typeof (Func<,>).MakeGenericType(typeof (T), type), expr,
+                parameter);
             string methodToInvoke = direction == SortDirection.Ascending ? orderBy : orderByDesc;
-            var orderByCall = Expression.Call(typeof(Queryable),
+            MethodCallExpression orderByCall = Expression.Call(typeof (Queryable),
                 methodToInvoke,
-                new[] { typeof(T), type },
+                new[] {typeof (T), type},
                 datasource.Expression,
                 Expression.Quote(orderByExp));
             return datasource.Provider.CreateQuery<T>(orderByCall);
         }
 
         /// <summary>
-        /// Need LinqKit
+        ///     Need LinqKit
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source"></param>
         /// <param name="predicate"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, string, bool>> predicate, string input)
+        public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source,
+            Expression<Func<TSource, string, bool>> predicate, string input)
         {
             throw new NotImplementedException();
             //if (source == null)

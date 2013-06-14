@@ -37,7 +37,10 @@ namespace Utilities
             Contract.Requires(binder != null);
 
             MethodInfo method = LimitType.GetMethod("GetProperty");
-            return method != null ? Expression.Call(Expression.Convert(Expression, LimitType), method, new Expression[] { Expression.Constant(binder.Name) }) : null;
+            return method != null
+                ? Expression.Call(Expression.Convert(Expression, LimitType), method,
+                    new Expression[] {Expression.Constant(binder.Name)})
+                : null;
         }
 
         public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value)
@@ -47,10 +50,12 @@ namespace Utilities
 
             MethodInfo method = LimitType.GetMethod("set_" + binder.Name);
             Expression setterExpression = method != null
-                ? Expression.Call(Expression.Convert(Expression, LimitType), method, Expression.Convert(value.Expression, value.LimitType))
+                ? Expression.Call(Expression.Convert(Expression, LimitType), method,
+                    Expression.Convert(value.Expression, value.LimitType))
                 : GetSetterExpression(binder, value);
 
-            return new DynamicMetaObject(Expression.Block(setterExpression, Expression.New(typeof(object))), BindingRestrictions.GetTypeRestriction(Expression, LimitType));
+            return new DynamicMetaObject(Expression.Block(setterExpression, Expression.New(typeof (object))),
+                BindingRestrictions.GetTypeRestriction(Expression, LimitType));
         }
 
         private MethodCallExpression GetSetterExpression(SetMemberBinder binder, DynamicMetaObject value)
@@ -59,7 +64,11 @@ namespace Utilities
             Contract.Requires(value != null);
 
             MethodInfo method = LimitType.GetMethod("SetProperty");
-            return method != null ? Expression.Call(Expression.Convert(Expression, LimitType), method, new Expression[] { Expression.Constant(binder.Name), Expression.Convert(value.Expression, typeof(object)) }) : null;
+            return method != null
+                ? Expression.Call(Expression.Convert(Expression, LimitType), method,
+                    new Expression[]
+                    {Expression.Constant(binder.Name), Expression.Convert(value.Expression, typeof (object))})
+                : null;
         }
     }
 }

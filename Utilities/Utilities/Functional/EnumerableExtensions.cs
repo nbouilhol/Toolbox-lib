@@ -20,12 +20,13 @@ namespace Utilities.Functional
             Contract.Requires(a != null);
             Contract.Requires(func != null);
 
-            foreach (var aval in a)
-                foreach (var bval in func(aval))
+            foreach (A aval in a)
+                foreach (B bval in func(aval))
                     yield return bval;
         }
 
-        public static IEnumerable<C> SelectMany<A, B, C>(this IEnumerable<A> a, Func<A, IEnumerable<B>> func, Func<A, B, C> select)
+        public static IEnumerable<C> SelectMany<A, B, C>(this IEnumerable<A> a, Func<A, IEnumerable<B>> func,
+            Func<A, B, C> select)
         {
             Contract.Requires(a != null);
             Contract.Requires(func != null);
@@ -48,7 +49,7 @@ namespace Utilities.Functional
             Contract.Requires(items != null);
             Contract.Requires(action != null);
 
-            foreach (var item in items)
+            foreach (T item in items)
                 action(item);
         }
 
@@ -68,7 +69,7 @@ namespace Utilities.Functional
             return list.Where(x => x != null);
         }
 
-        public static IEnumerable<T> NotNull<T>(this IEnumerable<Nullable<T>> list)
+        public static IEnumerable<T> NotNull<T>(this IEnumerable<T?> list)
             where T : struct
         {
             Contract.Requires(list != null);
@@ -76,7 +77,8 @@ namespace Utilities.Functional
             return list.Where(x => x.HasValue).Select(x => x.Value);
         }
 
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> list)
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(
+            this IEnumerable<KeyValuePair<TKey, TValue>> list)
         {
             Contract.Requires(list != null);
 
@@ -96,10 +98,11 @@ namespace Utilities.Functional
             Contract.Requires(list != null);
             Contract.Requires(selector != null);
 
-            return list.SelectMany(x => x.AsEnumerable().Concat((selector(x) ?? Enumerable.Empty<T>()).Recurse(selector)));
+            return
+                list.SelectMany(x => x.AsEnumerable().Concat((selector(x) ?? Enumerable.Empty<T>()).Recurse(selector)));
         }
 
-        public static IEnumerable<T> Squash<T>(this IEnumerable<Nullable<T>> list)
+        public static IEnumerable<T> Squash<T>(this IEnumerable<T?> list)
             where T : struct
         {
             Contract.Requires(list != null);

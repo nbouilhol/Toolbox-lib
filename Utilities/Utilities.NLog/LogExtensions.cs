@@ -4,11 +4,12 @@ namespace Utilities.NLog
 {
     public static class LogExtensions
     {
-        private static readonly ConcurrentDictionary<string, ILog> _dictionary = new ConcurrentDictionary<string, ILog>();
+        private static readonly ConcurrentDictionary<string, ILog> _dictionary =
+            new ConcurrentDictionary<string, ILog>();
 
         public static ILog Log<T>(this T type)
         {
-            string objectName = typeof(T).FullName;
+            string objectName = typeof (T).FullName;
             return Log(objectName);
         }
 

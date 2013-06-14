@@ -3,5 +3,7 @@
 namespace Utilities.DomainCommands
 {
     [InheritedExport]
-    public interface ICommand { }
+    public interface ICommand
+    {
+    }
 }

@@ -7,8 +7,8 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class ObjectDataReader<TData> : IDataReader
     {
-        private readonly PropertyAccessor<TData> _propertyAccessor;
         private readonly IEnumerator<TData> _dataEnumerator;
+        private readonly PropertyAccessor<TData> _propertyAccessor;
 
         public ObjectDataReader(IEnumerable<TData> data)
         {
@@ -170,7 +170,8 @@ namespace Utilities.SqlHelpers.Mapper
         {
             int ordinal;
 
-            if (!_propertyAccessor.OrdinalLookup.TryGetValue(name, out ordinal)) throw new InvalidOperationException("Unknown parameter name " + name);
+            if (!_propertyAccessor.OrdinalLookup.TryGetValue(name, out ordinal))
+                throw new InvalidOperationException("Unknown parameter name " + name);
 
             return ordinal;
         }
@@ -183,7 +184,9 @@ namespace Utilities.SqlHelpers.Mapper
         public object GetValue(int i)
         {
             if (_dataEnumerator == null) throw new ObjectDisposedException("ObjectDataReader");
-            return i < _propertyAccessor.Accessors.Length ? _propertyAccessor.Accessors[i](_dataEnumerator.Current) : null;
+            return i < _propertyAccessor.Accessors.Length
+                ? _propertyAccessor.Accessors[i](_dataEnumerator.Current)
+                : null;
         }
 
         public int GetValues(object[] values)

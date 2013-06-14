@@ -21,13 +21,13 @@ namespace Mvc.Helper.UI
         public static void CompressDirectory(string root, string outputDirectory)
         {
             Console.WriteLine("Compressing all .js files within: " + root);
-            foreach (var file in Directory.GetFiles(root, "*.js"))
+            foreach (string file in Directory.GetFiles(root, "*.js"))
                 CompressFile(file, outputDirectory);
-            foreach (var directory in Directory.GetDirectories(root))
+            foreach (string directory in Directory.GetDirectories(root))
             {
                 if ((new DirectoryInfo(directory).Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
                 {
-                    var newOuputDirectory = outputDirectory + directory.Substring(root.Length) + "\\";
+                    string newOuputDirectory = outputDirectory + directory.Substring(root.Length) + "\\";
                     CompressDirectory(directory, newOuputDirectory);
                 }
             }
@@ -35,7 +35,7 @@ namespace Mvc.Helper.UI
 
         public static void CompressFile(string file, string outputDirectory)
         {
-            var name = Path.GetFileName(file);
+            string name = Path.GetFileName(file);
             if (name.Contains(".min."))
                 return;
             Console.WriteLine("Compressing file: " + name);

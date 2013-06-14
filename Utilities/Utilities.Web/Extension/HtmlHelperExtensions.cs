@@ -1,7 +1,7 @@
-﻿using System.Web.Mvc;
+﻿using System.Text;
+using System.Web.Mvc;
 using System.Web.UI;
 using System.Web.UI.DataVisualization.Charting;
-using System.Text;
 
 namespace Mvc.Helper
 {
@@ -15,7 +15,7 @@ namespace Mvc.Helper
         public static string Script(this HtmlHelper html, string srcRelease, params string[] srcDebugs)
         {
 #if DEBUG
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             foreach (string srcDebug in srcDebugs)
                 builder.AppendFormat("<script type=\"text/javascript\" src=\"{0}\"></script>", srcDebug);
             return builder.ToString();
@@ -27,9 +27,10 @@ namespace Mvc.Helper
         public static string Css(this HtmlHelper html, string media, string hrefRelease, params string[] hrefDebugs)
         {
 #if DEBUG
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             foreach (string hrefDebug in hrefDebugs)
-                builder.AppendFormat("<link rel=\"stylesheet\" type=\"text/css\" media=\"{0}\" href=\"{1}\"/>", media, hrefDebug);
+                builder.AppendFormat("<link rel=\"stylesheet\" type=\"text/css\" media=\"{0}\" href=\"{1}\"/>", media,
+                    hrefDebug);
             return builder.ToString();
 #else
             return string.Format("<link rel=\"stylesheet\" type=\"text/css\" media=\"{0}\" href=\"{1}\"/>", media, hrefRelease);

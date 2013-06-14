@@ -3,6 +3,7 @@
     public class TaskNull : ITask
     {
         public void Do()
-        { }
+        {
+        }
     }
 }

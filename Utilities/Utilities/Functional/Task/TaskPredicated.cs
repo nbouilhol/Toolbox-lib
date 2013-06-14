@@ -5,8 +5,8 @@ namespace Utilities.Functional.Task
 {
     public class TaskPredicated : ITask
     {
-        private readonly Func<bool> taskShouldBeDone;
         private readonly ITask decoratedTask;
+        private readonly Func<bool> taskShouldBeDone;
 
         public TaskPredicated(ITask task, Func<bool> predicate)
         {
@@ -17,17 +17,17 @@ namespace Utilities.Functional.Task
             decoratedTask = task;
         }
 
+        public void Do()
+        {
+            if (taskShouldBeDone())
+                decoratedTask.Do();
+        }
+
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
             Contract.Invariant(taskShouldBeDone != null);
             Contract.Invariant(decoratedTask != null);
-        }
-
-        public void Do()
-        {
-            if (taskShouldBeDone())
-                decoratedTask.Do();
         }
     }
 }

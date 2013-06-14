@@ -6,7 +6,8 @@ namespace Utilities.SqlHelpers
 {
     public static class QueryMapping
     {
-        public static IEnumerable<IEnumerable<T>> MapForFlatten<T>(SqlDataReader reader, Func<SqlDataReader, ICollection<T>> mapper)
+        public static IEnumerable<IEnumerable<T>> MapForFlatten<T>(SqlDataReader reader,
+            Func<SqlDataReader, ICollection<T>> mapper)
         {
             while (reader.HasRows)
             {

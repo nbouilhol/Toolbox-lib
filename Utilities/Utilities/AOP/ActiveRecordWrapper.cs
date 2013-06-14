@@ -24,7 +24,10 @@ namespace Utilities.AOP
         {
             if (methodName == "FindAll") return Query.FindAllDynamic(_connectionString, _table);
             if (!methodName.StartsWith("FindAllBy")) return base.OnInvoke(source, methodName, args);
-            IDictionary<string, object> where = new Dictionary<string, object> { { methodName.Replace("FindAllBy", ""), args != null ? args.FirstOrDefault() : null } };
+            IDictionary<string, object> where = new Dictionary<string, object>
+            {
+                {methodName.Replace("FindAllBy", ""), args != null ? args.FirstOrDefault() : null}
+            };
             return Query.FindAllByDynamic(_connectionString, _table, @where);
         }
     }

@@ -11,7 +11,7 @@ namespace Utilities.SqlHelpers.Dynamic
 
         public static FastExpando Attach(IDictionary<string, object> data)
         {
-            return new FastExpando { data = data };
+            return new FastExpando {data = data};
         }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
@@ -64,10 +64,7 @@ namespace Utilities.SqlHelpers.Dynamic
 
         object IDictionary<string, object>.this[string key]
         {
-            get
-            {
-                return data[key];
-            }
+            get { return data[key]; }
             set
             {
                 if (!data.ContainsKey(key))

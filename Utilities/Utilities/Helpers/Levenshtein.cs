@@ -32,7 +32,9 @@ namespace Utilities.Helpers
                 for (int j = 1; j <= m; j++)
                 {
                     int cost = target[j - 1] == source[i - 1] ? 0 : 1;
-                    distance[currentRow, j] = Math.Min(Math.Min(distance[previousRow, j] + 1, distance[currentRow, j - 1] + 1), distance[previousRow, j - 1] + cost);
+                    distance[currentRow, j] =
+                        Math.Min(Math.Min(distance[previousRow, j] + 1, distance[currentRow, j - 1] + 1),
+                            distance[previousRow, j - 1] + cost);
                 }
             }
 

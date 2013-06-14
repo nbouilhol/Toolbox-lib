@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+using System.Data.Entity.Core;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Core.Objects.DataClasses;
-using System.Data.Entity.Core;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Mvc.Infrastructure.Repositories
 {
@@ -14,16 +14,12 @@ namespace Mvc.Infrastructure.Repositories
     {
         public abstract Func<TContext> GetContext { get; }
 
-        protected abstract ObjectQuery<TEntity> EntityQuery(TContext context);
-
         protected abstract InvalidOperationException HasNoResult { get; }
 
         protected abstract Func<TEntity, InvalidOperationException> IsNotFound { get; }
 
         protected abstract Func<TEntity, InvalidOperationException> IsInvalid { get; }
-
-        public ShortContextBaseRepository()
-        { }
+        protected abstract ObjectQuery<TEntity> EntityQuery(TContext context);
 
         public virtual TEntity FindFirst(TContext context, Expression<Func<TEntity, bool>> filter)
         {
@@ -86,7 +82,7 @@ namespace Mvc.Infrastructure.Repositories
             if (entities == null || !entities.Any())
                 throw new ArgumentNullException("entities");
 
-            foreach (var entity in entities)
+            foreach (TEntity entity in entities)
             {
                 try
                 {
@@ -132,7 +128,7 @@ namespace Mvc.Infrastructure.Repositories
             if (entities == null || !entities.Any())
                 throw new ArgumentNullException("entities");
 
-            foreach (var entity in entities)
+            foreach (TEntity entity in entities)
             {
                 try
                 {

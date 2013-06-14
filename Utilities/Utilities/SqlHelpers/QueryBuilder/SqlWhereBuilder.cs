@@ -2,7 +2,7 @@
 {
     public class SqlWhereBuilder
     {
-        private SqlQueryRequest _sqlQueryRequest;
+        private readonly SqlQueryRequest _sqlQueryRequest;
 
         public SqlWhereBuilder(SqlQueryRequest _sqlQueryRequest)
         {
@@ -11,7 +11,8 @@
 
         public virtual SqlWhereOperator Where(SqlComparisonBuilder sqlComparison)
         {
-            if (sqlComparison == null || sqlComparison.QuerySqlComparison == null || sqlComparison.QuerySqlComparison.Length == 0)
+            if (sqlComparison == null || sqlComparison.QuerySqlComparison == null ||
+                sqlComparison.QuerySqlComparison.Length == 0)
                 return new SqlWhereOperator(_sqlQueryRequest);
             if (string.IsNullOrEmpty(_sqlQueryRequest.Wheres)) _sqlQueryRequest.Wheres = " WHERE ";
             _sqlQueryRequest.Wheres += " (" + sqlComparison.QuerySqlComparison + ")";

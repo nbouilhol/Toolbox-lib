@@ -39,12 +39,12 @@ namespace Utilities.Extensions
 
         public static decimal ToPercent(this decimal value, decimal total)
         {
-            return ((total - value) / total) * 100;
+            return ((total - value)/total)*100;
         }
 
         public static IEnumerable<int> ToInts(this bool num)
         {
-            return num == false ? new List<int> { 0 } : new List<int> { 0, 1 };
+            return num == false ? new List<int> {0} : new List<int> {0, 1};
         }
     }
 }

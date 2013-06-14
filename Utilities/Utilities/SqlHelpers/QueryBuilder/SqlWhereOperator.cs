@@ -5,13 +5,69 @@ namespace Utilities.QueryBuilder
 {
     public class SqlWhereOperator : ISqlQueryBuilder
     {
-        private SqlQueryRequest _sqlQueryRequest;
-        private SqlQueryBuilder _sqlQueryBuilder;
+        private readonly SqlQueryBuilder _sqlQueryBuilder;
+        private readonly SqlQueryRequest _sqlQueryRequest;
 
         public SqlWhereOperator(SqlQueryRequest sqlQueryRequest)
         {
             _sqlQueryRequest = sqlQueryRequest;
             _sqlQueryBuilder = new SqlQueryBuilder(sqlQueryRequest);
+        }
+
+        public SqlQueryBuilder OrderBy(string tableName, string[] sortColumnsName,
+            SortOrder sortOrder = SortOrder.Ascending)
+        {
+            return _sqlQueryBuilder.OrderBy(tableName, sortColumnsName, sortOrder);
+        }
+
+        public SqlQueryBuilder GroupBy(string tableName, params string[] grouppedColumnsName)
+        {
+            return _sqlQueryBuilder.GroupBy(tableName, grouppedColumnsName);
+        }
+
+        public SqlQueryBuilder OrderBy(string[] sortColumnsName, SortOrder sortOrder = SortOrder.Ascending)
+        {
+            return _sqlQueryBuilder.OrderBy(sortColumnsName, sortOrder);
+        }
+
+        public SqlQueryBuilder OrderBy(string sortColumnName, SortOrder sortOrder = SortOrder.Ascending)
+        {
+            return _sqlQueryBuilder.OrderBy(sortColumnName, sortOrder);
+        }
+
+        public SqlQueryBuilder Max(string tableName, string columnName, string aliasMax = null)
+        {
+            return _sqlQueryBuilder.Max(tableName, columnName, aliasMax);
+        }
+
+        public SqlQueryBuilder Min(string tableName, string columnName, string aliasMin = null)
+        {
+            return _sqlQueryBuilder.Min(tableName, columnName, aliasMin);
+        }
+
+        public SqlQueryBuilder Sum(string tableName, string columnName, string aliasSum = null)
+        {
+            return _sqlQueryBuilder.Sum(tableName, columnName, aliasSum);
+        }
+
+        public SqlQueryBuilder Avg(string tableName, string columnName, string aliasAvg = null)
+        {
+            return _sqlQueryBuilder.Avg(tableName, columnName, aliasAvg);
+        }
+
+        public SqlQueryBuilder Count(string tableName, string columnName, string aliasCount = null)
+        {
+            return _sqlQueryBuilder.Count(tableName, columnName, aliasCount);
+        }
+
+        public SqlQueryBuilder SelectSubQuery(string subQuery, string aliasSubQuery = null)
+        {
+            return _sqlQueryBuilder.SelectSubQuery(subQuery, aliasSubQuery);
+        }
+
+        public SqlQueryBuilder Count()
+        {
+            return _sqlQueryBuilder.Count();
         }
 
         public SqlWhereBuilder And()
@@ -29,11 +85,6 @@ namespace Utilities.QueryBuilder
         }
 
         #region Implementation of ISqlQueryBuilder
-
-        public override string ToString()
-        {
-            return _sqlQueryBuilder.ToString();
-        }
 
         public StringBuilder ToStringBuilder()
         {
@@ -90,61 +141,11 @@ namespace Utilities.QueryBuilder
             return _sqlQueryBuilder.Top(topValue);
         }
 
+        public override string ToString()
+        {
+            return _sqlQueryBuilder.ToString();
+        }
+
         #endregion Implementation of ISqlQueryBuilder
-
-        public SqlQueryBuilder OrderBy(string tableName, string[] sortColumnsName, SortOrder sortOrder = SortOrder.Ascending)
-        {
-            return _sqlQueryBuilder.OrderBy(tableName, sortColumnsName, sortOrder);
-        }
-
-        public SqlQueryBuilder GroupBy(string tableName, params string[] grouppedColumnsName)
-        {
-            return _sqlQueryBuilder.GroupBy(tableName, grouppedColumnsName);
-        }
-
-        public SqlQueryBuilder OrderBy(string[] sortColumnsName, SortOrder sortOrder = SortOrder.Ascending)
-        {
-            return _sqlQueryBuilder.OrderBy(sortColumnsName, sortOrder);
-        }
-
-        public SqlQueryBuilder OrderBy(string sortColumnName, SortOrder sortOrder = SortOrder.Ascending)
-        {
-            return _sqlQueryBuilder.OrderBy(sortColumnName, sortOrder);
-        }
-
-        public SqlQueryBuilder Max(string tableName, string columnName, string aliasMax = null)
-        {
-            return _sqlQueryBuilder.Max(tableName, columnName, aliasMax);
-        }
-
-        public SqlQueryBuilder Min(string tableName, string columnName, string aliasMin = null)
-        {
-            return _sqlQueryBuilder.Min(tableName, columnName, aliasMin);
-        }
-
-        public SqlQueryBuilder Sum(string tableName, string columnName, string aliasSum = null)
-        {
-            return _sqlQueryBuilder.Sum(tableName, columnName, aliasSum);
-        }
-
-        public SqlQueryBuilder Avg(string tableName, string columnName, string aliasAvg = null)
-        {
-            return _sqlQueryBuilder.Avg(tableName, columnName, aliasAvg);
-        }
-
-        public SqlQueryBuilder Count(string tableName, string columnName, string aliasCount = null)
-        {
-            return _sqlQueryBuilder.Count(tableName, columnName, aliasCount);
-        }
-
-        public SqlQueryBuilder SelectSubQuery(string subQuery, string aliasSubQuery = null)
-        {
-            return _sqlQueryBuilder.SelectSubQuery(subQuery, aliasSubQuery);
-        }
-
-        public SqlQueryBuilder Count()
-        {
-            return _sqlQueryBuilder.Count();
-        }
     }
 }

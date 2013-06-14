@@ -7,10 +7,10 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class PropertyMetadata
     {
-        private readonly Type _type;
-        private readonly Delegate _setter;
-        private readonly PropertyInfo _property;
         private readonly Delegate _getter;
+        private readonly PropertyInfo _property;
+        private readonly Delegate _setter;
+        private readonly Type _type;
 
         public PropertyMetadata(Type type, PropertyInfo property)
         {
@@ -24,6 +24,13 @@ namespace Utilities.SqlHelpers.Mapper
             PropertyName = MapPropertyName(property);
         }
 
+        public PropertyInfo Property
+        {
+            get { return _property; }
+        }
+
+        public string PropertyName { get; protected set; }
+
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
@@ -34,24 +41,13 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static string MapPropertyName(PropertyInfo property)
         {
-            var attribute = (ColumnAttribute)Attribute.GetCustomAttribute(property, typeof(ColumnAttribute));
+            var attribute = (ColumnAttribute) Attribute.GetCustomAttribute(property, typeof (ColumnAttribute));
 
             if (attribute != null)
                 return attribute.Name;
             if (property != null)
                 return property.Name;
             return null;
-        }
-
-        public PropertyInfo Property
-        {
-            get { return _property; }
-        }
-
-        public string PropertyName
-        {
-            get;
-            protected set;
         }
 
         public void SetValue(object instance, object value)
@@ -70,12 +66,13 @@ namespace Utilities.SqlHelpers.Mapper
             Contract.Requires(propertyInfo != null);
 
             ParameterExpression instance = Expression.Parameter(type, "x");
-            ParameterExpression argument = Expression.Parameter(typeof(object), "v");
+            ParameterExpression argument = Expression.Parameter(typeof (object), "v");
             MethodInfo setMethod = propertyInfo.GetSetMethod(true);
 
             if (setMethod == null) throw new UtilitiesException("setMethod");
 
-            MethodCallExpression setterCall = Expression.Call(instance, setMethod, Expression.Convert(argument, propertyInfo.PropertyType));
+            MethodCallExpression setterCall = Expression.Call(instance, setMethod,
+                Expression.Convert(argument, propertyInfo.PropertyType));
 
             return Expression.Lambda(setterCall, instance, argument).Compile();
         }
@@ -89,7 +86,7 @@ namespace Utilities.SqlHelpers.Mapper
             Expression expression = Expression.PropertyOrField(param, propertyInfo.Name);
 
             if (propertyInfo.PropertyType.IsValueType)
-                expression = Expression.Convert(expression, typeof(object));
+                expression = Expression.Convert(expression, typeof (object));
 
             return Expression.Lambda(expression, param).Compile();
         }
@@ -97,9 +94,9 @@ namespace Utilities.SqlHelpers.Mapper
 
     public class PropertyMetadata<T>
     {
-        private readonly Action<T, object> _setter;
-        private readonly PropertyInfo _property;
         private readonly Func<T, object> _getter;
+        private readonly PropertyInfo _property;
+        private readonly Action<T, object> _setter;
 
         public PropertyMetadata(PropertyInfo property)
         {
@@ -111,6 +108,13 @@ namespace Utilities.SqlHelpers.Mapper
             PropertyName = MapPropertyName(property);
         }
 
+        public PropertyInfo Property
+        {
+            get { return _property; }
+        }
+
+        public string PropertyName { get; protected set; }
+
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
@@ -121,24 +125,13 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static string MapPropertyName(PropertyInfo property)
         {
-            var attribute = (ColumnAttribute)Attribute.GetCustomAttribute(property, typeof(ColumnAttribute));
+            var attribute = (ColumnAttribute) Attribute.GetCustomAttribute(property, typeof (ColumnAttribute));
 
             if (attribute != null)
                 return attribute.Name;
             if (property != null)
                 return property.Name;
             return null;
-        }
-
-        public PropertyInfo Property
-        {
-            get { return _property; }
-        }
-
-        public string PropertyName
-        {
-            get;
-            protected set;
         }
 
         public void SetValue(T instance, object value)
@@ -155,26 +148,27 @@ namespace Utilities.SqlHelpers.Mapper
         {
             Contract.Requires(propertyInfo != null);
 
-            ParameterExpression instance = Expression.Parameter(typeof(T), "x");
-            ParameterExpression argument = Expression.Parameter(typeof(object), "v");
+            ParameterExpression instance = Expression.Parameter(typeof (T), "x");
+            ParameterExpression argument = Expression.Parameter(typeof (object), "v");
             MethodInfo setMethod = propertyInfo.GetSetMethod(true);
 
             if (setMethod == null) throw new UtilitiesException("setMethod");
 
-            MethodCallExpression setterCall = Expression.Call(instance, setMethod, Expression.Convert(argument, propertyInfo.PropertyType));
+            MethodCallExpression setterCall = Expression.Call(instance, setMethod,
+                Expression.Convert(argument, propertyInfo.PropertyType));
 
-            return (Action<T, object>)Expression.Lambda(setterCall, instance, argument).Compile();
+            return (Action<T, object>) Expression.Lambda(setterCall, instance, argument).Compile();
         }
 
         private static Func<T, object> BuildGetterDelegate(PropertyInfo propertyInfo)
         {
             Contract.Requires(propertyInfo != null);
 
-            ParameterExpression param = Expression.Parameter(typeof(T), "x");
+            ParameterExpression param = Expression.Parameter(typeof (T), "x");
             Expression expression = Expression.PropertyOrField(param, propertyInfo.Name);
 
             if (propertyInfo.PropertyType.IsValueType)
-                expression = Expression.Convert(expression, typeof(object));
+                expression = Expression.Convert(expression, typeof (object));
 
             return Expression.Lambda<Func<T, object>>(expression, param).Compile();
         }

@@ -9,10 +9,8 @@ namespace Utilities.Storage
     public abstract class CappedQueue<T> : ConcurrentQueue<T> where T : class
     {
         private readonly int _capLimit;
-        private readonly Timer _timer;
         private readonly TaskFactory _factory;
-
-        public event Action<IEnumerable<T>> OnPublish = delegate { };
+        private readonly Timer _timer;
 
         protected CappedQueue(int capLimit, int timeLimit)
         {
@@ -23,7 +21,9 @@ namespace Utilities.Storage
             _timer.Start();
         }
 
-        public virtual new void Enqueue(T item)
+        public event Action<IEnumerable<T>> OnPublish = delegate { };
+
+        public new virtual void Enqueue(T item)
         {
             base.Enqueue(item);
             if (Count >= _capLimit) Publish();
@@ -33,9 +33,9 @@ namespace Utilities.Storage
         {
             _factory.StartNew(t =>
             {
-                ((Timer)t).Stop();
+                ((Timer) t).Stop();
                 OnPublish(Dequeue());
-                ((Timer)t).Start();
+                ((Timer) t).Start();
             }, _timer);
         }
 

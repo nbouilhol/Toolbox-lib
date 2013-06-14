@@ -10,7 +10,8 @@ namespace Utilities
 {
     public class LogInitializer
     {
-        public const string Separator = "--------------------------------------------------------------------------------";
+        public const string Separator =
+            "--------------------------------------------------------------------------------";
 
         public LogInitializer(string logPath, string filenameInfo, string filenameError)
         {
@@ -24,7 +25,7 @@ namespace Utilities
 
         private static LoggingConfiguration BuildConfiguration(string logPath, string filenameInfo, string filenameError)
         {
-            LoggingConfiguration config = new LoggingConfiguration();
+            var config = new LoggingConfiguration();
 
 #if DEBUG
             Target infoFileTarget = BuildInfoFileTarget(logPath, filenameInfo);
@@ -45,7 +46,7 @@ namespace Utilities
 
         private static Target BuildInfoFileTarget(string logPath, string filename)
         {
-            FileTarget target = new FileTarget();
+            var target = new FileTarget();
 
             target.FileName = string.Concat(logPath, filename);
             target.AutoFlush = false;
@@ -55,14 +56,14 @@ namespace Utilities
             target.ArchiveNumbering = ArchiveNumberingMode.Sequence;
             target.NetworkWrites = true;
 
-            BufferingTargetWrapper wrapper = new BufferingTargetWrapper(target);
+            var wrapper = new BufferingTargetWrapper(target);
 
             return wrapper;
         }
 
         private static Target BuildInstantFileTarget(string logPath, string filename)
         {
-            FileTarget fileTarget = new FileTarget();
+            var fileTarget = new FileTarget();
 
             fileTarget.FileName = string.Concat(logPath, filename);
             fileTarget.AutoFlush = true;
@@ -73,13 +74,16 @@ namespace Utilities
 
         private static LayoutWithHeaderAndFooter BuildLayout()
         {
-            LayoutWithHeaderAndFooter layout = new LayoutWithHeaderAndFooter();
+            var layout = new LayoutWithHeaderAndFooter();
             Guid guid = Guid.NewGuid();
 
-            layout.Header = string.Concat(Separator, "${newline}Guid: ", guid.ToString(), "${newline}${date:format=dddd dd MMMM yyyy}${newline}${date:format=T}${newline}Login: ${windows-identity}${newline}Machine: ${machinename}${newline}Version: ${gdc:item=version}${newline}", Separator);
+            layout.Header = string.Concat(Separator, "${newline}Guid: ", guid.ToString(),
+                "${newline}${date:format=dddd dd MMMM yyyy}${newline}${date:format=T}${newline}Login: ${windows-identity}${newline}Machine: ${machinename}${newline}Version: ${gdc:item=version}${newline}",
+                Separator);
             //layout.Layout = "${level:uppercase=true} ${logger}: ${message}${onexception:inner=${newline}${exception:format=tostring}}";
             layout.Layout = "${message}${onexception:inner=${newline}${exception:format=tostring}}";
-            layout.Footer = string.Concat(Separator, "${newline}", guid.ToString(), " - ${date:format=T} - ${qpc}s${newline}", Separator);
+            layout.Footer = string.Concat(Separator, "${newline}", guid.ToString(),
+                " - ${date:format=T} - ${qpc}s${newline}", Separator);
 
             return layout;
         }

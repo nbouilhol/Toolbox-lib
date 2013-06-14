@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 
 namespace Utilities.QueryBuilder
 {
     public class SqlSelectBuilder
     {
-        private SqlQueryRequest _sqlQueryRequest;
+        private readonly SqlQueryRequest _sqlQueryRequest;
 
         public SqlSelectBuilder(SqlQueryRequest sqlQueryRequest)
         {
@@ -80,9 +79,8 @@ namespace Utilities.QueryBuilder
                 _sqlQueryRequest.Columns.Add(tableName + ".*");
                 return;
             }
-            foreach (var columnName in newColumnsName)
+            foreach (string columnName in newColumnsName)
                 _sqlQueryRequest.Columns.Add(tableName + "." + columnName);
-            return;
         }
 
         public void SelectSqlLiteral(params string[] sqlLiteralColumns)
@@ -111,7 +109,7 @@ namespace Utilities.QueryBuilder
             if (_sqlQueryRequest.SortColumns == null)
                 _sqlQueryRequest.SortColumns = new List<string>();
 
-            foreach (var columnName in sortColumnsName)
+            foreach (string columnName in sortColumnsName)
             {
                 if (!string.IsNullOrEmpty(tableName))
                     _sqlQueryRequest.SortColumns.Add(tableName + "." + columnName + sortOrderSql);
@@ -130,26 +128,12 @@ namespace Utilities.QueryBuilder
 
             if (!string.IsNullOrEmpty(tableName))
             {
-                foreach (var columnName in grouppedColumnsName)
+                foreach (string columnName in grouppedColumnsName)
                     _sqlQueryRequest.GroupByColumns.Add(tableName + "." + columnName);
             }
             else
                 _sqlQueryRequest.GroupByColumns.AddRange(grouppedColumnsName);
         }
-
-        #region Private methods
-
-        private static string ConvertSortOrderToSql(SortOrder sortOrder)
-        {
-            switch (sortOrder)
-            {
-                case SortOrder.Ascending: return " ASC ";
-                case SortOrder.Descending: return " DESC ";
-                default: return "";
-            }
-        }
-
-        #endregion Private methods
 
         public void SelectSubQuery(string subQuery, string aliasSubQuery)
         {
@@ -159,5 +143,22 @@ namespace Utilities.QueryBuilder
                 subQuery += " as " + aliasSubQuery;
             SelectSqlLiteral(subQuery);
         }
+
+        #region Private methods
+
+        private static string ConvertSortOrderToSql(SortOrder sortOrder)
+        {
+            switch (sortOrder)
+            {
+                case SortOrder.Ascending:
+                    return " ASC ";
+                case SortOrder.Descending:
+                    return " DESC ";
+                default:
+                    return "";
+            }
+        }
+
+        #endregion Private methods
     }
 }

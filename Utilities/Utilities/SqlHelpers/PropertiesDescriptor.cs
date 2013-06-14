@@ -11,14 +11,19 @@ namespace Utilities.SqlHelpers
 {
     public class PropertiesDescriptor<TData>
     {
-        private static readonly Lazy<PropertiesDescriptor<TData>> instanceCache = new Lazy<PropertiesDescriptor<TData>>(() => new PropertiesDescriptor<TData>());
+        private static readonly Lazy<PropertiesDescriptor<TData>> instanceCache =
+            new Lazy<PropertiesDescriptor<TData>>(() => new PropertiesDescriptor<TData>());
 
         public PropertiesDescriptor()
         {
-            Type type = typeof(TData);
+            Type type = typeof (TData);
 
-            PropertiesInfo = type.GetPropertiesInfoWithInterfaces(BindingFlags.Instance | BindingFlags.Public).Where(property => Filter(property)).ToList();
-            Accessors = PropertiesInfo.ToDictionary(property => property.Name, property => CreatePropertyAccessor(type, property));
+            PropertiesInfo =
+                type.GetPropertiesInfoWithInterfaces(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(property => Filter(property))
+                    .ToList();
+            Accessors = PropertiesInfo.ToDictionary(property => property.Name,
+                property => CreatePropertyAccessor(type, property));
         }
 
         public IDictionary<string, Func<TData, object>> Accessors { get; private set; }
@@ -35,22 +40,23 @@ namespace Utilities.SqlHelpers
             Contract.Requires(type != null);
             Contract.Requires(propertyInfo != null);
 
-            ParameterExpression parameter = ParameterExpression.Parameter(type);
+            ParameterExpression parameter = Expression.Parameter(type);
             Expression expression = GetProperty(parameter, propertyInfo.Name);
 
-            if (propertyInfo.PropertyType.IsValueType) expression = UnaryExpression.Convert(expression, typeof(object));
+            if (propertyInfo.PropertyType.IsValueType) expression = Expression.Convert(expression, typeof (object));
 
             return Expression.Lambda<Func<TData, object>>(expression, parameter).Compile();
         }
 
         private static bool Filter(PropertyInfo property)
         {
-            return property.CanRead && (NotMappedAttribute)Attribute.GetCustomAttribute(property, typeof(NotMappedAttribute)) == null && property.PropertyType.Namespace.StartsWith("System");
+            return property.CanRead && Attribute.GetCustomAttribute(property, typeof (NotMappedAttribute)) == null &&
+                   property.PropertyType.Namespace.StartsWith("System");
         }
 
         public static Expression GetProperty(Expression parameterExpression, string propertyName)
         {
-            return MemberExpression.Property(parameterExpression, GetOrSearchProperty(parameterExpression.Type, propertyName));
+            return Expression.Property(parameterExpression, GetOrSearchProperty(parameterExpression.Type, propertyName));
         }
 
         private static PropertyInfo GetOrSearchProperty(Type baseType, string propertyName)
@@ -60,7 +66,7 @@ namespace Utilities.SqlHelpers
             if (propertyInfo != null) return propertyInfo;
 
             IEnumerable<Type> types = baseType.GetInterfaces();
-            if (baseType.BaseType != null) types = types.Concat(new List<Type> { baseType.BaseType });
+            if (baseType.BaseType != null) types = types.Concat(new List<Type> {baseType.BaseType});
 
             return types.Select(type => GetOrSearchProperty(type, propertyName)).FirstOrDefault(prop => prop != null);
         }

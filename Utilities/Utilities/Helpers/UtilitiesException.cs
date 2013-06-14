@@ -6,7 +6,6 @@ namespace Utilities
     public class UtilitiesException : Exception
     {
         public UtilitiesException()
-            : base()
         {
         }
 

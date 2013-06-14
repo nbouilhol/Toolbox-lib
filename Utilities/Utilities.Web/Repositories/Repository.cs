@@ -4,7 +4,8 @@ using System.Data.Entity.Core.Objects.DataClasses;
 
 namespace Mvc.Infrastructure.Repositories
 {
-    public abstract class Repository<TEntity, TKey> : BaseRepository<TEntity, TKey>, IRepository<TEntity, TKey> where TEntity : EntityObject
+    public abstract class Repository<TEntity, TKey> : BaseRepository<TEntity, TKey>, IRepository<TEntity, TKey>
+        where TEntity : EntityObject
     {
         public Repository(Lazy<ObjectContext> context)
             : base(context)
@@ -13,7 +14,10 @@ namespace Mvc.Infrastructure.Repositories
 
         protected abstract ObjectSet<TEntity> EntitySet { get; }
 
-        protected override ObjectQuery<TEntity> EntityQuery { get { return EntitySet; } }
+        protected override ObjectQuery<TEntity> EntityQuery
+        {
+            get { return EntitySet; }
+        }
 
         protected override void AddObject(TEntity entity)
         {

@@ -45,7 +45,7 @@ namespace Utilities.Extensions
 
         private static DateTime TodayOrPrev(DateTime date, DayOfWeek day)
         {
-            int diff = (int)day - (int)date.DayOfWeek;
+            int diff = (int) day - (int) date.DayOfWeek;
             return date.AddDays(diff <= 0 ? diff : diff - 7);
         }
 
@@ -56,44 +56,44 @@ namespace Utilities.Extensions
 
         public static DateTime ThisWeekMonday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Monday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Monday - (int) date.DayOfWeek);
         }
 
         public static DateTime? ThisWeekMonday(this DateTime? date)
         {
             if (date == null)
                 return date;
-            return date.Value.AddDays((int)DayOfWeek.Monday - (int)date.Value.DayOfWeek);
+            return date.Value.AddDays((int) DayOfWeek.Monday - (int) date.Value.DayOfWeek);
         }
 
         public static DateTime ThisWeekTuesday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Tuesday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Tuesday - (int) date.DayOfWeek);
         }
 
         public static DateTime ThisWeekWednesday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Wednesday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Wednesday - (int) date.DayOfWeek);
         }
 
         public static DateTime ThisWeekThursday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Thursday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Thursday - (int) date.DayOfWeek);
         }
 
         public static DateTime ThisWeekFriday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Friday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Friday - (int) date.DayOfWeek);
         }
 
         public static DateTime ThisWeekSaturday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Saturday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Saturday - (int) date.DayOfWeek);
         }
 
         public static DateTime ThisWeekSunday(this DateTime date)
         {
-            return date.AddDays((int)DayOfWeek.Sunday - (int)date.DayOfWeek);
+            return date.AddDays((int) DayOfWeek.Sunday - (int) date.DayOfWeek);
         }
 
         public static string ToQueryString(this DateTime? date)
@@ -128,12 +128,12 @@ namespace Utilities.Extensions
 
         public static DateTime NextMonday(this DateTime date)
         {
-            return date.AddDays((7 + (int)DayOfWeek.Monday) - (int)date.DayOfWeek);
+            return date.AddDays((7 + (int) DayOfWeek.Monday) - (int) date.DayOfWeek);
         }
 
         public static DateTime PrevFriday(this DateTime date)
         {
-            return date.AddDays(0 - ((7 - (int)DayOfWeek.Friday) + (int)date.DayOfWeek));
+            return date.AddDays(0 - ((7 - (int) DayOfWeek.Friday) + (int) date.DayOfWeek));
         }
 
         public static IEnumerable<DateTime?> GetAllDaysBetweenDates(this DateTime? beginDate, DateTime? endDate)
@@ -166,11 +166,12 @@ namespace Utilities.Extensions
 
         public static DateTime AddWeekdays(this DateTime date, int days)
         {
-            if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) throw new ArgumentException("start must be a weekday");
+            if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+                throw new ArgumentException("start must be a weekday");
             Contract.EndContractBlock();
 
-            int remainder = days % 5;
-            int weekendDays = (days / 5) * 2;
+            int remainder = days%5;
+            int weekendDays = (days/5)*2;
             DateTime end = date.AddDays(remainder);
             if (end.DayOfWeek == DayOfWeek.Saturday)
                 end = end.AddDays(2);
@@ -222,8 +223,7 @@ namespace Utilities.Extensions
         {
             if (date.HasValue)
                 return date.Value.ToString(format, provider);
-            else
-                return string.Empty;
+            return string.Empty;
         }
 
         public static string ToRelativeDateString(this DateTime date)
@@ -243,20 +243,19 @@ namespace Utilities.Extensions
                 return string.Concat("on ", date.ToString("MMMM d, yyyy"));
             if (diff.TotalDays >= 7)
                 return string.Concat("on ", date.ToString("MMMM d"));
-            else if (diff.TotalDays > 1)
+            if (diff.TotalDays > 1)
                 return string.Format("{0:N0} days ago", diff.TotalDays);
-            else if (diff.TotalDays == 1)
+            if (diff.TotalDays == 1)
                 return "yesterday";
-            else if (diff.TotalHours >= 2)
+            if (diff.TotalHours >= 2)
                 return string.Format("{0:N0} hours ago", diff.TotalHours);
-            else if (diff.TotalMinutes >= 60)
+            if (diff.TotalMinutes >= 60)
                 return "more than an hour ago";
-            else if (diff.TotalMinutes >= 5)
+            if (diff.TotalMinutes >= 5)
                 return string.Format("{0:N0} minutes ago", diff.TotalMinutes);
             if (diff.TotalMinutes >= 1)
                 return "a few minutes ago";
-            else
-                return "less than a minute ago";
+            return "less than a minute ago";
         }
 
         public static IEnumerable<DateTime> Weeks(this IEnumerable<DateTime> dates)
@@ -275,7 +274,7 @@ namespace Utilities.Extensions
 
         public static int MonthDifference(this DateTime startDate, DateTime endDate)
         {
-            return Math.Abs(12 * (startDate.Year - endDate.Year) + startDate.Month - endDate.Month);
+            return Math.Abs(12*(startDate.Year - endDate.Year) + startDate.Month - endDate.Month);
         }
 
         public static int YearDifference(this DateTime startDate, DateTime endDate)
@@ -311,9 +310,9 @@ namespace Utilities.Extensions
         private static DateTime FirstDayOfTheMonth(DateTime date, DayOfWeek dayOfWeek)
         {
             DateTime firstDay = FirstDayOfTheMonth(date);
-            if ((int)dayOfWeek - (int)firstDay.DayOfWeek > 0)
-                return date.AddDays((int)dayOfWeek - (int)firstDay.DayOfWeek);
-            return date.AddDays((7 + (int)dayOfWeek) - (int)date.DayOfWeek);
+            if ((int) dayOfWeek - (int) firstDay.DayOfWeek > 0)
+                return date.AddDays((int) dayOfWeek - (int) firstDay.DayOfWeek);
+            return date.AddDays((7 + (int) dayOfWeek) - (int) date.DayOfWeek);
         }
 
         public static DateTime AddYearsAndManageLeapYear(this DateTime date, int value)
@@ -325,7 +324,9 @@ namespace Utilities.Extensions
             bool currentYearIsLeapYear = DateTime.IsLeapYear(currentYear);
             bool newYearIsLeapYear = DateTime.IsLeapYear(value);
 
-            return !currentYearIsLeapYear && newYearIsLeapYear && date.Day == 28 && date.Month == 2 ? date.AddYears(diff).AddDays(1) : date.AddYears(diff);
+            return !currentYearIsLeapYear && newYearIsLeapYear && date.Day == 28 && date.Month == 2
+                ? date.AddYears(diff).AddDays(1)
+                : date.AddYears(diff);
         }
 
         public static bool IsYearValid(this int year)

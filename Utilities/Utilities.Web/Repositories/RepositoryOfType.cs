@@ -4,7 +4,8 @@ using System.Data.Entity.Core.Objects.DataClasses;
 
 namespace Mvc.Infrastructure.Repositories
 {
-    public abstract class RepositoryOfType<TDBEntity, TEntity, TKey> : BaseRepository<TEntity, TKey>, IRepository<TEntity, TKey>
+    public abstract class RepositoryOfType<TDBEntity, TEntity, TKey> : BaseRepository<TEntity, TKey>,
+        IRepository<TEntity, TKey>
         where TEntity : EntityObject, TDBEntity
         where TDBEntity : EntityObject
     {

@@ -13,11 +13,14 @@ namespace Mvc.Helper.Grid
     {
         IGrid<TSource> BuildUrl(RequestContext context, string route, string action);
 
-        IGrid<TSource> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<TSource, TKey>> keySelector, SortDirection? keySelectorDirection);
+        IGrid<TSource> OrderBy<TKey>(string propertyName, SortDirection? direction,
+            Expression<Func<TSource, TKey>> keySelector, SortDirection? keySelectorDirection);
 
-        IGrid<TSource> OrderBy(string propertyName, SortDirection? direction, string defaultPropertyName, SortDirection? defaultDirection);
+        IGrid<TSource> OrderBy(string propertyName, SortDirection? direction, string defaultPropertyName,
+            SortDirection? defaultDirection);
 
-        IGrid<TSource> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<TSource, TKey>> keySelector);
+        IGrid<TSource> OrderBy<TKey>(string propertyName, SortDirection? direction,
+            Expression<Func<TSource, TKey>> keySelector);
 
         IGrid<TSource> AsPagination(int? pageNumber);
 
@@ -28,7 +31,7 @@ namespace Mvc.Helper.Grid
         IGrid<TSource> SearchFor(string input, Expression<Func<TSource, bool>> filter);
 
         /// <summary>
-        /// Need LinqKit
+        ///     Need LinqKit
         /// </summary>
         /// <param name="input"></param>
         /// <param name="filter"></param>

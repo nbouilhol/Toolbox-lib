@@ -6,8 +6,8 @@ namespace Utilities.Functional.Task
 {
     public class TaskAsync : ITaskCancellable, IDisposable
     {
-        private readonly System.Threading.Tasks.Task sysTask;
         private readonly CancellationTokenSource cancellationTokenSource;
+        private readonly System.Threading.Tasks.Task sysTask;
 
         public TaskAsync(ITask task)
         {
@@ -30,10 +30,10 @@ namespace Utilities.Functional.Task
             }, token);
         }
 
-        [ContractInvariantMethod]
-        private void ObjectInvariant()
+        public void Dispose()
         {
-            Contract.Invariant(sysTask != null);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Do()
@@ -46,10 +46,10 @@ namespace Utilities.Functional.Task
             if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
         }
 
-        public void Dispose()
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            Contract.Invariant(sysTask != null);
         }
 
         protected virtual void Dispose(bool disposing)

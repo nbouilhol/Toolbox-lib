@@ -6,9 +6,10 @@ namespace Utilities.Extensions
 {
     public static class TaskExtension
     {
-        public static Task SendAsync(this SynchronizationContext context, SendOrPostCallback sendOrPostCallback, object state)
+        public static Task SendAsync(this SynchronizationContext context, SendOrPostCallback sendOrPostCallback,
+            object state)
         {
-            TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
+            var taskCompletionSource = new TaskCompletionSource<bool>();
 
             context.Post(s =>
             {

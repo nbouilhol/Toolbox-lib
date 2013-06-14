@@ -16,17 +16,17 @@ namespace Utilities.Functional.Task
             this.taskToRun = taskToRun;
         }
 
+        public void Do()
+        {
+            objectToCancel.Cancel();
+            taskToRun.Do();
+        }
+
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
             Contract.Invariant(taskToRun != null);
             Contract.Invariant(objectToCancel != null);
-        }
-
-        public void Do()
-        {
-            objectToCancel.Cancel();
-            taskToRun.Do();
         }
     }
 }

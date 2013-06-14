@@ -11,19 +11,19 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class Mapper<T>
     {
+        private static readonly Lazy<Mapper<T>> InstanceCache = new Lazy<Mapper<T>>(() => new Mapper<T>());
         private readonly Func<T> _factory;
         private readonly IDictionary<string, PropertyMetadata<T>> _properties;
-        private static readonly Lazy<Mapper<T>> InstanceCache = new Lazy<Mapper<T>>(() => new Mapper<T>());
-
-        public static Mapper<T> Create()
-        {
-            return InstanceCache.Value;
-        }
 
         private Mapper()
         {
             _factory = CreateActivatorDelegate();
             _properties = BuildPropertiesDictionary();
+        }
+
+        public static Mapper<T> Create()
+        {
+            return InstanceCache.Value;
         }
 
         [ContractInvariantMethod]
@@ -35,19 +35,26 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static IDictionary<string, PropertyMetadata<T>> BuildPropertiesDictionary()
         {
-            if (typeof(T).IsValueType) return null;
+            if (typeof (T).IsValueType) return null;
 
             IEnumerable<PropertyInfo> properties = GetProperties();
             return properties != null
-                ? properties.Select(property => new PropertyMetadata<T>(property)).ToDictionary(property => property.PropertyName, StringComparer.InvariantCultureIgnoreCase)
+                ? properties.Select(property => new PropertyMetadata<T>(property))
+                    .ToDictionary(property => property.PropertyName, StringComparer.InvariantCultureIgnoreCase)
                 : null;
         }
 
         private static IEnumerable<PropertyInfo> GetProperties()
         {
-            if (typeof(T).IsValueType) return null;
+            if (typeof (T).IsValueType) return null;
 
-            return typeof(T).GetPropertiesInfoWithInterfaces().Where(property => property.CanWrite && (NotMappedAttribute)Attribute.GetCustomAttribute(property, typeof(NotMappedAttribute)) == null);
+            return
+                typeof (T).GetPropertiesInfoWithInterfaces()
+                    .Where(
+                        property =>
+                            property.CanWrite &&
+                            (NotMappedAttribute) Attribute.GetCustomAttribute(property, typeof (NotMappedAttribute)) ==
+                            null);
         }
 
         public IEnumerable<T> MapToList(SqlDataReader reader)
@@ -83,16 +90,18 @@ namespace Utilities.SqlHelpers.Mapper
                 {
                     try
                     {
-                        if (typeof(T).IsValueType) instance = record[column] != null ? (T)record[column] : default(T);
+                        if (typeof (T).IsValueType) instance = record[column] != null ? (T) record[column] : default(T);
                         else
                         {
                             PropertyMetadata<T> property;
-                            if (_properties.TryGetValue(record.GetName(column), out property)) if (property != null) property.SetValue(instance, record[column]);
+                            if (_properties.TryGetValue(record.GetName(column), out property))
+                                if (property != null) property.SetValue(instance, record[column]);
                         }
                     }
                     catch (InvalidCastException e)
                     {
-                        throw MappingException.InvalidCast(string.Format("{0} should be {1}", record.GetName(column), record[column].GetType().Name), e);
+                        throw MappingException.InvalidCast(
+                            string.Format("{0} should be {1}", record.GetName(column), record[column].GetType().Name), e);
                     }
                 }
             }
@@ -102,18 +111,18 @@ namespace Utilities.SqlHelpers.Mapper
 
         private static Func<T> CreateActivatorDelegate()
         {
-            if (typeof(T).IsValueType) return CreateActivatorDelegateForPrimitive();
+            if (typeof (T).IsValueType) return CreateActivatorDelegateForPrimitive();
 
-            ConstructorInfo constructor = typeof(T).GetConstructor(Type.EmptyTypes);
+            ConstructorInfo constructor = typeof (T).GetConstructor(Type.EmptyTypes);
 
-            if (constructor == null) return () => { throw MappingException.NoParameterlessConstructor(typeof(T)); };
+            if (constructor == null) return () => { throw MappingException.NoParameterlessConstructor(typeof (T)); };
 
             return Expression.Lambda<Func<T>>(Expression.New(constructor)).Compile();
         }
 
         private static Func<T> CreateActivatorDelegateForPrimitive()
         {
-            return Expression.Lambda<Func<T>>(Expression.New(typeof(T))).Compile();
+            return Expression.Lambda<Func<T>>(Expression.New(typeof (T))).Compile();
         }
     }
 }

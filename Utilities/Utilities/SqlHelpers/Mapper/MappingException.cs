@@ -18,7 +18,8 @@ namespace Utilities.SqlHelpers.Mapper
 
         public static MappingException InvalidCast(string column, Exception innerException)
         {
-            string message = string.Format("Could not map the property '{0}' as its data type does not match the database.", column);
+            string message =
+                string.Format("Could not map the property '{0}' as its data type does not match the database.", column);
             return new MappingException(message, innerException);
         }
 

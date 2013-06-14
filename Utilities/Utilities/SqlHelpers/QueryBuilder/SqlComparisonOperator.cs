@@ -6,6 +6,8 @@ namespace Utilities.QueryBuilder
 {
     public class SqlComparisonOperator
     {
+        private readonly StringBuilder querySqlComparison;
+
         public SqlComparisonOperator()
         {
             querySqlComparison = new StringBuilder();
@@ -16,9 +18,11 @@ namespace Utilities.QueryBuilder
             this.querySqlComparison = querySqlComparison;
         }
 
-        public SqlComparisonBuilder Equals(string toTableName, string toColumnName, string fromTableName, string fromColumnName)
+        public SqlComparisonBuilder Equals(string toTableName, string toColumnName, string fromTableName,
+            string fromColumnName)
         {
-            querySqlComparison.Append(FormatColumnTableName(toTableName, toColumnName) + " = " + FormatColumnTableName(fromTableName, fromColumnName));
+            querySqlComparison.Append(FormatColumnTableName(toTableName, toColumnName) + " = " +
+                                      FormatColumnTableName(fromTableName, fromColumnName));
             return new SqlComparisonBuilder(querySqlComparison);
         }
 
@@ -66,7 +70,8 @@ namespace Utilities.QueryBuilder
             return new SqlComparisonBuilder(querySqlComparison);
         }
 
-        public SqlComparisonBuilder GreaterOrEquals(string tableName, string fieldName, object value, DbType? dbType = null)
+        public SqlComparisonBuilder GreaterOrEquals(string tableName, string fieldName, object value,
+            DbType? dbType = null)
         {
             if (value != null)
                 querySqlComparison.AppendFormat(" {0}.{1} >= {2} ", tableName, fieldName, FormatSqlValue(value, dbType));
@@ -90,7 +95,7 @@ namespace Utilities.QueryBuilder
         private static string FormatSqlValues(object[] values, DbType? dbType = null)
         {
             string valuesWithComma = null;
-            foreach (var value in values)
+            foreach (object value in values)
             {
                 if (!string.IsNullOrEmpty(valuesWithComma)) valuesWithComma += ",";
                 valuesWithComma += FormatSqlValue(value, dbType);
@@ -103,11 +108,11 @@ namespace Utilities.QueryBuilder
             if (value == null)
                 return "NULL";
             if (dbType == DbType.Boolean)
-                return (bool)value ? "1" : "0";
+                return (bool) value ? "1" : "0";
             if (dbType == DbType.DateTime)
-                return String.Format("'{0:yyyy/MM/dd hh:mm:ss}'", (DateTime)value);
+                return String.Format("'{0:yyyy/MM/dd hh:mm:ss}'", (DateTime) value);
             if (dbType == DbType.String)
-                return String.Format("'{0}'", ((string)value).Replace("'", "''"));
+                return String.Format("'{0}'", ((string) value).Replace("'", "''"));
             return value;
         }
 
@@ -116,7 +121,5 @@ namespace Utilities.QueryBuilder
             if (string.IsNullOrEmpty(tableName)) return columnName;
             return tableName + "." + columnName;
         }
-
-        private readonly StringBuilder querySqlComparison;
     }
 }

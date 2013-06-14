@@ -1,47 +1,30 @@
-﻿.datatable-thead a
-{
-    background-color: inherit !important;
-}
-.dataTables_wrapper .even
-{
-    background-color: #FFF;
-}
-.dataTables_wrapper .odd
-{
-    background-color: #F5F8F9;
-}
-.dataTables_wrapper .odd:hover
-{
-    background-color: #D5E5F2;
-}
-.dataTables_wrapper .even:hover
-{
-    background-color: #D5E5F2;
-}
-.dataTables_wrapper .center
-{
-    text-align: center;
+﻿.datatable-thead a { background-color: inherit !important; }
+
+.dataTables_wrapper .even { background-color: #FFF; }
+
+.dataTables_wrapper .odd { background-color: #F5F8F9; }
+
+.dataTables_wrapper .odd:hover { background-color: #D5E5F2; }
+
+.dataTables_wrapper .even:hover { background-color: #D5E5F2; }
+
+.dataTables_wrapper .center {
     min-width: 5.3em;
+    text-align: center;
 }
-.dataTables_wrapper .left
-{
-    text-align: left;
-}
-.dataTables_wrapper .right
-{
-    text-align: right;
-}
-.dataTables_wrapper .button
-{
-    padding: 3px 5px !important;
+
+.dataTables_wrapper .left { text-align: left; }
+
+.dataTables_wrapper .right { text-align: right; }
+
+.dataTables_wrapper .button {
     font-size: .65em;
+    padding: 3px 5px !important;
 }
-.dataTables_wrapper .num
-{
+
+.dataTables_wrapper .num {
     display: inline-block;
     width: 50%;
 }
-.dataTables_wrapper
-{
-    white-space: nowrap;
-}
+
+.dataTables_wrapper { white-space: nowrap; }

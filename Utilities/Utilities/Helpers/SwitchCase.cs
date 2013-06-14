@@ -6,7 +6,7 @@ namespace Utilities
 {
     public class SwitchCase<TKey> : ConcurrentDictionary<TKey, Action>
     {
-        private Action defaultAction;
+        private readonly Action defaultAction;
 
         public SwitchCase()
         {

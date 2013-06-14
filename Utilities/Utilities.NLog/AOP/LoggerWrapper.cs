@@ -32,12 +32,13 @@ namespace Utilities.NLog.AOP
 
         private static string GetMessageLeave(object result)
         {
-            return string.Format("OnExit : {0}", result.ToString());
+            return string.Format("OnExit : {0}", result);
         }
 
         private static string GetMessageEnter(string name, object[] args)
         {
-            return string.Format("OnEntry : {0} With : {1}", name, string.Join(", ", args != null ? args.Select(arg => arg.ToString()) : null));
+            return string.Format("OnEntry : {0} With : {1}", name,
+                string.Join(", ", args != null ? args.Select(arg => arg.ToString()) : null));
         }
     }
 

@@ -10,18 +10,19 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class PropertyAccessor<TData>
     {
+        private static readonly Lazy<PropertyAccessor<TData>> InstanceCache =
+            new Lazy<PropertyAccessor<TData>>(() => new PropertyAccessor<TData>());
+
         private readonly Func<TData, object>[] _accessors;
         private readonly IDictionary<string, int> _ordinalLookup;
-        private static readonly Lazy<PropertyAccessor<TData>> InstanceCache = new Lazy<PropertyAccessor<TData>>(() => new PropertyAccessor<TData>());
-
-        public Func<TData, object>[] Accessors { get { return _accessors; } }
-
-        public IDictionary<string, int> OrdinalLookup { get { return _ordinalLookup; } }
 
         public PropertyAccessor()
         {
-            var propertyAccessors = typeof(TData).GetPropertiesInfoWithInterfaces()
-                .Where(property => property.CanRead && (NotMappedAttribute)Attribute.GetCustomAttribute(property, typeof(NotMappedAttribute)) == null)
+            var propertyAccessors = typeof (TData).GetPropertiesInfoWithInterfaces()
+                .Where(
+                    property =>
+                        property.CanRead &&
+                        (NotMappedAttribute) Attribute.GetCustomAttribute(property, typeof (NotMappedAttribute)) == null)
                 .Select((p, i) => new
                 {
                     Index = i,
@@ -30,7 +31,18 @@ namespace Utilities.SqlHelpers.Mapper
                 }).ToArray();
 
             _accessors = propertyAccessors.Select(p => p.Accessor).ToArray();
-            _ordinalLookup = propertyAccessors.ToDictionary(p => MapPropertyName(p.Property), p => p.Index, StringComparer.OrdinalIgnoreCase);
+            _ordinalLookup = propertyAccessors.ToDictionary(p => MapPropertyName(p.Property), p => p.Index,
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        public Func<TData, object>[] Accessors
+        {
+            get { return _accessors; }
+        }
+
+        public IDictionary<string, int> OrdinalLookup
+        {
+            get { return _ordinalLookup; }
         }
 
         public static PropertyAccessor<TData> Create()
@@ -42,17 +54,17 @@ namespace Utilities.SqlHelpers.Mapper
         {
             Contract.Requires(propertyInfo != null);
 
-            ParameterExpression parameter = Expression.Parameter(typeof(TData), "input");
+            ParameterExpression parameter = Expression.Parameter(typeof (TData), "input");
             Expression expression = Expression.PropertyOrField(parameter, propertyInfo.Name);
 
-            if (propertyInfo.PropertyType.IsValueType) expression = Expression.Convert(expression, typeof(object));
+            if (propertyInfo.PropertyType.IsValueType) expression = Expression.Convert(expression, typeof (object));
 
             return Expression.Lambda<Func<TData, object>>(expression, parameter).Compile();
         }
 
         private static string MapPropertyName(PropertyInfo property)
         {
-            var attribute = (ColumnAttribute)Attribute.GetCustomAttribute(property, typeof(ColumnAttribute));
+            var attribute = (ColumnAttribute) Attribute.GetCustomAttribute(property, typeof (ColumnAttribute));
 
             if (attribute != null) return attribute.Name;
             if (property != null) return property.Name;

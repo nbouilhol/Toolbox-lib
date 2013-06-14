@@ -1,10 +1,11 @@
 ﻿using System.Data.Entity.Core.Objects;
-using Mvc.Outlook.Infrastructure.Repositories;
 using System.Data.Entity.Core.Objects.DataClasses;
+using Mvc.Outlook.Infrastructure.Repositories;
 
 namespace Mvc.Infrastructure.Repositories
 {
-    public abstract class ShortContextRepository<TContext, TEntity, TKey> : ShortContextBaseRepository<TContext, TEntity, TKey>, IShortContextRepository<TContext, TEntity, TKey>
+    public abstract class ShortContextRepository<TContext, TEntity, TKey> :
+        ShortContextBaseRepository<TContext, TEntity, TKey>, IShortContextRepository<TContext, TEntity, TKey>
         where TEntity : EntityObject
         where TContext : ObjectContext
     {

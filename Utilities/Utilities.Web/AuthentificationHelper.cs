@@ -10,7 +10,7 @@ namespace Mvc.Helper.UI
             if (fullLogin == null)
                 throw new ArgumentNullException("fullLogin");
 
-            var loginSplit = fullLogin.Split('\\');
+            string[] loginSplit = fullLogin.Split('\\');
             if (!loginSplit.Any())
                 return fullLogin;
             string[] split = fullLogin.Split('\\');

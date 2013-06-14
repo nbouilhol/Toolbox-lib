@@ -4,8 +4,8 @@ namespace Utilities.AOP
 {
     public class ActionWrapper<T> : BaseWrapper<T> where T : class
     {
-        private readonly Action<T> _actionBefore;
         private readonly Action<T> _actionAfter;
+        private readonly Action<T> _actionBefore;
 
         public ActionWrapper(T source, Action<T> actionBefore, Action<T> actionAfter)
             : base(source)

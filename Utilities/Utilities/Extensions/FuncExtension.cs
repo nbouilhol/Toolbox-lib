@@ -12,9 +12,10 @@ namespace Utilities.Extensions
             return f.Memoize(EqualityComparer<TKey>.Default);
         }
 
-        public static Func<TKey, TResult> Memoize<TKey, TResult>(this Func<TKey, TResult> f, IEqualityComparer<TKey> equalityComparer)
+        public static Func<TKey, TResult> Memoize<TKey, TResult>(this Func<TKey, TResult> f,
+            IEqualityComparer<TKey> equalityComparer)
         {
-            ConcurrentDictionary<TKey, Lazy<TResult>> cache = new ConcurrentDictionary<TKey, Lazy<TResult>>(equalityComparer);
+            var cache = new ConcurrentDictionary<TKey, Lazy<TResult>>(equalityComparer);
             return key => cache.GetOrAdd(key, new Lazy<TResult>(() => f(key))).Value;
         }
 
@@ -48,7 +49,8 @@ namespace Utilities.Extensions
                 });
         }
 
-        public static Task<TResult> Using<T, TResult>(Func<T> disposableAcquisition, Func<T, Task<TResult>> taskFunc) where T : IDisposable
+        public static Task<TResult> Using<T, TResult>(Func<T> disposableAcquisition, Func<T, Task<TResult>> taskFunc)
+            where T : IDisposable
         {
             T instance = disposableAcquisition();
 

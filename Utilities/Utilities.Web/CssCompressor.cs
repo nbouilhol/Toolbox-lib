@@ -20,13 +20,13 @@ namespace Mvc.Helper.UI
         public static void CompressDirectory(string root, string outputDirectory)
         {
             Console.WriteLine("Compressing all .css files within: " + root);
-            foreach (var file in Directory.GetFiles(root, "*.css"))
+            foreach (string file in Directory.GetFiles(root, "*.css"))
                 CompressFile(file, outputDirectory);
-            foreach (var directory in Directory.GetDirectories(root))
+            foreach (string directory in Directory.GetDirectories(root))
             {
                 if ((new DirectoryInfo(directory).Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
                 {
-                    var newOuputDirectory = outputDirectory + directory.Substring(root.Length) + "\\";
+                    string newOuputDirectory = outputDirectory + directory.Substring(root.Length) + "\\";
                     CompressDirectory(directory, newOuputDirectory);
                 }
             }
@@ -34,11 +34,11 @@ namespace Mvc.Helper.UI
 
         public static void CompressFile(string file, string outputDirectory)
         {
-            var name = Path.GetFileName(file);
+            string name = Path.GetFileName(file);
             if (name.Contains(".min."))
                 return;
             Console.WriteLine("Compressing file: " + name);
-            Yahoo.Yui.Compressor.CssCompressor cssCompressor = new Yahoo.Yui.Compressor.CssCompressor();
+            var cssCompressor = new Yahoo.Yui.Compressor.CssCompressor();
             using (var sw = new StreamWriter(outputDirectory + name.Replace(".css", ".min.css")))
             using (var sr = new StreamReader(file))
                 sw.Write(cssCompressor.Compress(sr.ReadToEnd()));

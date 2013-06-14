@@ -7,7 +7,7 @@ namespace Utilities.Functional.Task
 {
     public class TaskComposite : ITask, IDisposable
     {
-        private BlockingCollection<ITask> composedTasks = new BlockingCollection<ITask>();
+        private readonly BlockingCollection<ITask> composedTasks = new BlockingCollection<ITask>();
 
         public TaskComposite(params ITask[] tasks)
         {
@@ -23,10 +23,10 @@ namespace Utilities.Functional.Task
             AddTasks(tasks);
         }
 
-        [ContractInvariantMethod]
-        private void ObjectInvariant()
+        public void Dispose()
         {
-            Contract.Invariant(composedTasks != null);
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Do()
@@ -37,6 +37,12 @@ namespace Utilities.Functional.Task
                 if (composedTasks.TryTake(out task, TimeSpan.FromSeconds(1.0)))
                     if (task != null) task.Do();
             }
+        }
+
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(composedTasks != null);
         }
 
         public void AddTask(ITask task)
@@ -50,14 +56,8 @@ namespace Utilities.Functional.Task
         {
             if (tasks == null)
                 return;
-            foreach (var task in tasks)
+            foreach (ITask task in tasks)
                 composedTasks.Add(task);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)

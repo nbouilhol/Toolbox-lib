@@ -5,15 +5,15 @@ namespace Mvc.Helper.Sorting
     [Serializable]
     public class SortStorage : ISort
     {
-        public string Column { get; private set; }
-
-        public SortDirection Direction { get; private set; }
-
         public SortStorage(string column, SortDirection? direction)
         {
             Column = column;
             Direction = direction ?? SortDirection.Descending;
         }
+
+        public string Column { get; private set; }
+
+        public SortDirection Direction { get; private set; }
 
         public SortDirection? GetSortDataFor(string column)
         {

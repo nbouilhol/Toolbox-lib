@@ -9,18 +9,16 @@ using Utilities.Extensions;
 
 namespace Utilities.SqlHelpers
 {
-    public static partial class SqlExtensions
+    public static class SqlExtensions
     {
-        [Pure]
         public static void AddParam(this SqlCommand command, object item)
         {
             Contract.Requires(command != null);
 
             SqlParameter parameter = item is SqlParameter ? item as SqlParameter : BuildParameter(command, item);
-            if (command.Parameters != null) command.Parameters.Add(parameter);
+            command.Parameters.Add(parameter);
         }
 
-        [Pure]
         public static void AddParams(this SqlCommand cmd, params object[] args)
         {
             Contract.Requires(args != null);
@@ -35,15 +33,17 @@ namespace Utilities.SqlHelpers
             return In(source, property, parameters, false);
         }
 
-        public static string In<TValue>(this string source, string property, IEnumerable<TValue> parameters, bool isNotIn)
+        public static string In<TValue>(this string source, string property, IEnumerable<TValue> parameters,
+            bool isNotIn)
         {
             Contract.Requires(source != null);
             Contract.Requires(property != null);
 
-            string empty = "''";
+            const string empty = "''";
             string clause = string.Format("{{IN:{0}}}", property);
-            string newClauseParameter = !isNotIn && parameters != null && parameters.Count() != 0
-                ? string.Join(",", parameters)
+            IEnumerable<TValue> enumerable = parameters as IList<TValue> ?? parameters.ToList();
+            string newClauseParameter = !isNotIn && parameters != null && enumerable.Count() != 0
+                ? string.Join(",", enumerable)
                 : empty;
             string newClause = string.Format("{0}IN ({1})", isNotIn ? "NOT " : "", newClauseParameter);
             return source.Replace(clause, newClause);
@@ -51,12 +51,15 @@ namespace Utilities.SqlHelpers
 
         public static string In(this string source, string property, IEnumerable<string> parameters, bool isNotIn)
         {
-            return In<string>(source, property, parameters != null ? parameters.Select(p => string.Format("'{0}'", p)) : null, isNotIn);
+            return In<string>(source, property,
+                parameters != null ? parameters.Select(p => string.Format("'{0}'", p)) : null, isNotIn);
         }
 
-        public static string InIgnoreCase(this string source, string property, IEnumerable<string> parameters, bool isNotIn)
+        public static string InIgnoreCase(this string source, string property, IEnumerable<string> parameters,
+            bool isNotIn)
         {
-            return In<string>(source, property, parameters != null ? parameters.Select(p => string.Format("'{0}'", p.ToLower())) : null, isNotIn);
+            return In<string>(source, property,
+                parameters != null ? parameters.Select(p => string.Format("'{0}'", p.ToLower())) : null, isNotIn);
         }
 
         public static string NotIn<TValue>(this string source, string property, IEnumerable<TValue> parameters)
@@ -70,9 +73,12 @@ namespace Utilities.SqlHelpers
             while (reader.HasRows)
             {
                 IEnumerable<string> fieldNames = reader.GetFieldNames();
+                IEnumerable<string> enumerable = fieldNames as IList<string> ?? fieldNames.ToList();
 
                 while (reader.Read())
-                    yield return reader.ToDictionary(fieldNames);
+                {
+                    yield return reader.ToDictionary(enumerable);
+                }
 
                 reader.NextResult();
             }
@@ -84,7 +90,10 @@ namespace Utilities.SqlHelpers
             Contract.Requires(dataRecord != null && dataRecord.FieldCount >= 0);
 
             IDictionary<string, object> dictionary = new Dictionary<string, object>();
-            dataRecord.GetFieldNames().Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v)).ToList().ForEach(value => dictionary.Add(value.Key, value.Value));
+            dataRecord.GetFieldNames()
+                .Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v))
+                .ToList()
+                .ForEach(value => dictionary.Add(value.Key, value.Value));
             return dictionary;
         }
 
@@ -94,9 +103,12 @@ namespace Utilities.SqlHelpers
             while (reader.HasRows)
             {
                 IEnumerable<string> fieldNames = reader.GetFieldNames();
+                IEnumerable<string> enumerable = fieldNames as IList<string> ?? fieldNames.ToList();
 
                 while (reader.Read())
-                    yield return reader.ToDynamic(fieldNames);
+                {
+                    yield return reader.ToDynamic(enumerable);
+                }
 
                 reader.NextResult();
             }
@@ -108,8 +120,11 @@ namespace Utilities.SqlHelpers
             Contract.Requires(dataRecord != null && dataRecord.FieldCount >= 0);
 
             dynamic expando = new ExpandoObject();
-            IDictionary<string, object> dictionary = expando as IDictionary<string, object>;
-            dataRecord.GetFieldNames().Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v)).ToList().ForEach(value => dictionary.Add(value.Key, value.Value));
+            var dictionary = expando as IDictionary<string, object>;
+            dataRecord.GetFieldNames()
+                .Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v))
+                .ToList()
+                .ForEach(value => dictionary.Add(value.Key, value.Value));
             return expando;
         }
 
@@ -120,7 +135,7 @@ namespace Utilities.SqlHelpers
 
             IEnumerable<string> fieldNames = reader.GetFieldNames();
             reader.Read();
-            return reader != null && reader.FieldCount >= 0 ? reader.ToDictionary(fieldNames) : null;
+            return reader.FieldCount >= 0 ? reader.ToDictionary(fieldNames) : null;
         }
 
         [Pure]
@@ -130,13 +145,13 @@ namespace Utilities.SqlHelpers
 
             IEnumerable<string> fieldNames = reader.GetFieldNames();
             reader.Read();
-            return reader != null && reader.FieldCount >= 0 ? reader.ToDynamic(fieldNames) : null;
+            return reader.FieldCount >= 0 ? reader.ToDynamic(fieldNames) : null;
         }
 
         private static SqlParameter BuildParameter(SqlCommand command, object item)
         {
             SqlParameter parameter = command.CreateParameter();
-            parameter.ParameterName = string.Format("@{0}", command.Parameters != null ? command.Parameters.Count : 0);
+            parameter.ParameterName = string.Format("@{0}", command.Parameters.Count);
 
             if (item == null)
                 parameter.Value = DBNull.Value;
@@ -147,21 +162,25 @@ namespace Utilities.SqlHelpers
             }
             else if (item is ExpandoObject || item is IDictionary<string, object>)
             {
-                var dictioanry = (IDictionary<string, object>)item;
+                var dictioanry = (IDictionary<string, object>) item;
                 parameter.Value = dictioanry.Values.FirstOrDefault();
             }
-            else if (item is string)
-            {
-                parameter.Size = ((string)item).Length;
-                parameter.Value = item;
-            }
-            else if (item is DateTime)
-            {
-                parameter.SqlDbType = SqlDbType.DateTime;
-                parameter.Value = item;
-            }
             else
-                parameter.Value = item;
+            {
+                var s = item as string;
+                if (s != null)
+                {
+                    parameter.Size = s.Length;
+                    parameter.Value = item;
+                }
+                else if (item is DateTime)
+                {
+                    parameter.SqlDbType = SqlDbType.DateTime;
+                    parameter.Value = item;
+                }
+                else
+                    parameter.Value = item;
+            }
 
             return parameter;
         }
@@ -171,7 +190,7 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(dataRecord != null && dataRecord.FieldCount >= 0);
 
-            return Enumerable.Range(0, dataRecord.FieldCount).Select(i => dataRecord.GetName(i));
+            return Enumerable.Range(0, dataRecord.FieldCount).Select(dataRecord.GetName);
         }
 
         [Pure]
@@ -179,19 +198,22 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(dataRecord != null && dataRecord.FieldCount >= 0);
 
-            object[] values = new object[dataRecord.FieldCount];
+            var values = new object[dataRecord.FieldCount];
             dataRecord.GetValues(values);
             return values.Replace(DBNull.Value, null);
         }
 
         [Pure]
-        private static IDictionary<string, object> ToDictionary(this IDataRecord dataRecord, IEnumerable<string> fieldNames)
+        private static IDictionary<string, object> ToDictionary(this IDataRecord dataRecord,
+            IEnumerable<string> fieldNames)
         {
             Contract.Requires(fieldNames != null);
             Contract.Requires(dataRecord != null && dataRecord.FieldCount >= 0);
 
             IDictionary<string, object> dictionary = new Dictionary<string, object>();
-            fieldNames.Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v)).ToList().ForEach(value => dictionary.Add(value.Key, value.Value));
+            fieldNames.Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v))
+                .ToList()
+                .ForEach(value => dictionary.Add(value.Key, value.Value));
             return dictionary;
         }
 
@@ -202,8 +224,10 @@ namespace Utilities.SqlHelpers
             Contract.Requires(dataRecord != null && dataRecord.FieldCount >= 0);
 
             dynamic expando = new ExpandoObject();
-            IDictionary<string, object> dictionary = expando as IDictionary<string, object>;
-            fieldNames.Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v)).ToList().ForEach(value => dictionary.Add(value.Key, value.Value));
+            var dictionary = expando as IDictionary<string, object>;
+            fieldNames.Zip(dataRecord.GetValues(), (f, v) => new KeyValuePair<string, object>(f, v))
+                .ToList()
+                .ForEach(value => dictionary.Add(value.Key, value.Value));
             return expando;
         }
 

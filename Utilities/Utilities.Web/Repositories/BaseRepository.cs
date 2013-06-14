@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Data.Entity.Core;
 
 namespace Mvc.Infrastructure.Repositories
 {
     public abstract class BaseRepository<TEntity, TKey> where TEntity : EntityObject
     {
-        protected ObjectContext Context { get { return context.Value; } }
+        public BaseRepository(Lazy<ObjectContext> context)
+        {
+            this.context = context;
+        }
+
+        protected ObjectContext Context
+        {
+            get { return context.Value; }
+        }
 
         private Lazy<ObjectContext> context { get; set; }
 
@@ -21,11 +29,6 @@ namespace Mvc.Infrastructure.Repositories
         protected abstract Func<TEntity, InvalidOperationException> IsNotFound { get; }
 
         protected abstract Func<TEntity, InvalidOperationException> IsInvalid { get; }
-
-        public BaseRepository(Lazy<ObjectContext> context)
-        {
-            this.context = context;
-        }
 
         public virtual TEntity FindFirst(Expression<Func<TEntity, bool>> filter)
         {
@@ -88,7 +91,7 @@ namespace Mvc.Infrastructure.Repositories
             if (entities == null || !entities.Any())
                 throw new ArgumentNullException("entities");
 
-            foreach (var entity in entities)
+            foreach (TEntity entity in entities)
             {
                 try
                 {
@@ -134,7 +137,7 @@ namespace Mvc.Infrastructure.Repositories
             if (entities == null || !entities.Any())
                 throw new ArgumentNullException("entities");
 
-            foreach (var entity in entities)
+            foreach (TEntity entity in entities)
             {
                 try
                 {

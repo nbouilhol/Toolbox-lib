@@ -16,12 +16,12 @@ namespace Mvc.Helper.Grid
     public class LazyGrid<T> : IGrid<T>
     {
         public const int DefaultPageSize = 25;
-        private IQueryable<T> query;
         private IPagination pagination;
-        private ISort sort;
-        private ISearch search;
-        private Func<int, int, string, SortDirection?, string, string> url;
+        private IQueryable<T> query;
         private IEnumerable<T> result;
+        private ISearch search;
+        private ISort sort;
+        private Func<int, int, string, SortDirection?, string, string> url;
 
         public LazyGrid(IQueryable<T> query)
         {
@@ -39,16 +39,29 @@ namespace Mvc.Helper.Grid
 
         public IGrid<T> BuildUrl(RequestContext context, string route, string action)
         {
-            url = (p, s, c, d, i) => new UrlHelper(context).RouteUrl(route, new RouteValueDictionary { { "action", action }, { "page", p }, { "size", s }, { "column", c }, { "direction", d }, { "search", i } });
+            url =
+                (p, s, c, d, i) =>
+                    new UrlHelper(context).RouteUrl(route,
+                        new RouteValueDictionary
+                        {
+                            {"action", action},
+                            {"page", p},
+                            {"size", s},
+                            {"column", c},
+                            {"direction", d},
+                            {"search", i}
+                        });
             return this;
         }
 
-        public IGrid<T> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<T, TKey>> keySelector)
+        public IGrid<T> OrderBy<TKey>(string propertyName, SortDirection? direction,
+            Expression<Func<T, TKey>> keySelector)
         {
             return OrderBy(propertyName, direction, keySelector, null);
         }
 
-        public IGrid<T> OrderBy(string propertyName, SortDirection? direction, string defaultPropertyName, SortDirection? defaultDirection)
+        public IGrid<T> OrderBy(string propertyName, SortDirection? direction, string defaultPropertyName,
+            SortDirection? defaultDirection)
         {
             if (string.IsNullOrEmpty(propertyName))
             {
@@ -61,7 +74,8 @@ namespace Mvc.Helper.Grid
             return this;
         }
 
-        public IGrid<T> OrderBy<TKey>(string propertyName, SortDirection? direction, Expression<Func<T, TKey>> keySelector, SortDirection? keySelectorDirection)
+        public IGrid<T> OrderBy<TKey>(string propertyName, SortDirection? direction,
+            Expression<Func<T, TKey>> keySelector, SortDirection? keySelectorDirection)
         {
             if (string.IsNullOrEmpty(propertyName))
             {
@@ -92,12 +106,12 @@ namespace Mvc.Helper.Grid
             else
             {
                 int totalItems = query.Count();
-                int totalPages = (int)Math.Ceiling(((double)totalItems) / size);
+                var totalPages = (int) Math.Ceiling(((double) totalItems)/size);
 
                 if (totalPages < number)
                     number = totalPages;
 
-                query = query.Skip((number - 1) * size).Take(size);
+                query = query.Skip((number - 1)*size).Take(size);
                 pagination = new PaginationStorage(number, size, totalItems, totalPages);
             }
 
@@ -113,7 +127,7 @@ namespace Mvc.Helper.Grid
         }
 
         /// <summary>
-        /// Need LinqKit
+        ///     Need LinqKit
         /// </summary>
         /// <param name="input"></param>
         /// <param name="filter"></param>
@@ -140,13 +154,13 @@ namespace Mvc.Helper.Grid
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            foreach (var item in GetResult())
+            foreach (T item in GetResult())
                 yield return item;
         }
 
         public IEnumerator GetEnumerator()
         {
-            return ((IEnumerable<T>)this).GetEnumerator();
+            return ((IEnumerable<T>) this).GetEnumerator();
         }
 
         public Func<int, int, string, SortDirection?, string, string> Url

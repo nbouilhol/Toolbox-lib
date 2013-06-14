@@ -715,7 +715,10 @@ namespace Utilities.SqlHelpers.Repository
         {
             return dataTable.Columns.Cast<DataColumn>().Select(column =>
             {
-                var sqlParameter = new SqlParameter(FormatParametername(column.ColumnName), column.DataType.ToSqlType()) { SourceColumn = column.ColumnName };
+                var sqlParameter = new SqlParameter(FormatParametername(column.ColumnName), column.DataType.ToSqlType())
+                {
+                    SourceColumn = column.ColumnName
+                };
                 return sqlParameter;
             }).ToArray();
         }

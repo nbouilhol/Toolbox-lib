@@ -1,4 +1,6 @@
 ﻿namespace Utilities.DomainCommands
 {
-    public interface IHandler<in TCommand> where TCommand : ICommand { }
+    public interface IHandler<in TCommand> where TCommand : ICommand
+    {
+    }
 }

@@ -14,12 +14,12 @@ namespace Mvc.Helper
         private const string DEFLATE = "deflate";
 
         /// <summary>
-        ///   A regular expression to localize all whitespace preceeding HTML tag endings.
+        ///     A regular expression to localize all whitespace preceeding HTML tag endings.
         /// </summary>
         private static readonly Regex RegexBetweenTags = new Regex(@">\s+", RegexOptions.Compiled);
 
         /// <summary>
-        ///   A regular expression to localize all whitespace preceeding a line break.
+        ///     A regular expression to localize all whitespace preceeding a line break.
         /// </summary>
         private static readonly Regex RegexLineBreaks = new Regex(@"\n\s+", RegexOptions.Compiled);
 
@@ -56,12 +56,13 @@ namespace Mvc.Helper
         {
             if (string.IsNullOrEmpty(request.PathInfo))
                 return false;
-            return request.ContentType.StartsWith("application/json;", StringComparison.OrdinalIgnoreCase) || string.Equals(request.ContentType, "application/json", StringComparison.OrdinalIgnoreCase);
+            return request.ContentType.StartsWith("application/json;", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(request.ContentType, "application/json", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        ///   Checks the request headers to see if the specified
-        ///   encoding is accepted by the client.
+        ///     Checks the request headers to see if the specified
+        ///     encoding is accepted by the client.
         /// </summary>
         private static bool IsEncodingAccepted(HttpRequestBase request, string encoding)
         {
@@ -69,9 +70,9 @@ namespace Mvc.Helper
         }
 
         /// <summary>
-        ///   Adds the specified encoding to the response headers.
+        ///     Adds the specified encoding to the response headers.
         /// </summary>
-        /// <param name = "encoding"></param>
+        /// <param name="encoding"></param>
         private static void SetEncoding(string encoding)
         {
             HttpContext.Current.Response.AppendHeader("Content-encoding", encoding);
@@ -79,9 +80,9 @@ namespace Mvc.Helper
         }
 
         /// <summary>
-        ///   Removes whitespace from the specified string of HTML.
+        ///     Removes whitespace from the specified string of HTML.
         /// </summary>
-        /// <param name = "html">The HTML string to remove white space from.</param>
+        /// <param name="html">The HTML string to remove white space from.</param>
         /// <returns>The specified HTML string stripped from all whitespace.</returns>
         public static string RemoveWhitespaceFromHtml(string html)
         {
