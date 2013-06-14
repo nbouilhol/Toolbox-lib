@@ -13,7 +13,7 @@ namespace Utilities.Functional.Task
         {
             Contract.Requires(task != null);
 
-            this.sysTask = new System.Threading.Tasks.Task(() => task.Do());
+            sysTask = new System.Threading.Tasks.Task(() => task.Do());
         }
 
         public TaskAsync(ITask task, CancellationTokenSource cancellationTokenSource)
@@ -23,7 +23,7 @@ namespace Utilities.Functional.Task
 
             this.cancellationTokenSource = cancellationTokenSource;
             CancellationToken token = cancellationTokenSource.Token;
-            this.sysTask = new System.Threading.Tasks.Task(() =>
+            sysTask = new System.Threading.Tasks.Task(() =>
             {
                 token.ThrowIfCancellationRequested();
                 task.Do();
@@ -38,12 +38,12 @@ namespace Utilities.Functional.Task
 
         public void Do()
         {
-            this.sysTask.Start();
+            sysTask.Start();
         }
 
         public void Cancel()
         {
-            if (cancellationTokenSource != null) this.cancellationTokenSource.Cancel();
+            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
         }
 
         public void Dispose()
@@ -54,7 +54,7 @@ namespace Utilities.Functional.Task
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing) if (this.sysTask != null) this.sysTask.Dispose();
+            if (disposing) if (sysTask != null) sysTask.Dispose();
         }
 
         //~TaskAsync()

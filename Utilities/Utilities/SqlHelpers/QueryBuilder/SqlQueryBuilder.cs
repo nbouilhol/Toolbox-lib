@@ -14,10 +14,10 @@ namespace Utilities.QueryBuilder
 
         public SqlQueryBuilder(SqlQueryRequest sqlQueryRequest)
         {
-            this._sqlQueryRequest = sqlQueryRequest;
-            this._sqlSelectBuilder = new SqlSelectBuilder(sqlQueryRequest);
-            this._sqlJoinBuilder = new SqlJoinBuilder(_sqlQueryRequest);
-            this._sqlWhereBuilder = new SqlWhereBuilder(_sqlQueryRequest);
+            _sqlQueryRequest = sqlQueryRequest;
+            _sqlSelectBuilder = new SqlSelectBuilder(sqlQueryRequest);
+            _sqlJoinBuilder = new SqlJoinBuilder(_sqlQueryRequest);
+            _sqlWhereBuilder = new SqlWhereBuilder(_sqlQueryRequest);
         }
 
         public override string ToString()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Web;
+using Mvc.Helper.Grid;
 using Mvc.Helper.Pagination;
 using Mvc.Helper.Search;
 
@@ -21,7 +22,7 @@ namespace Mvc.Helper.UI
             this.urlBuilder = urlBuilder;
         }
 
-        public Header(Grid.IGrid grid)
+        public Header(IGrid grid)
             : this(grid.Pagination, grid.Search, (s, i) => grid.Url(grid.Pagination.PageNumber, s, grid.Sort.Column, grid.Sort.Direction, i))
         { }
 

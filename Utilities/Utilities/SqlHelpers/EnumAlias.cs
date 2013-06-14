@@ -2,10 +2,10 @@
 {
     public enum EnumAlias
     {
-        NULL = 0,
-        DEV = 1,
-        PRE = 2,
-        PROD = 3
+        Null = 0,
+        Dev = 1,
+        Pre = 2,
+        Prod = 3
     }
 
     public static class EnumAliasHelper
@@ -15,7 +15,7 @@
         public static EnumAlias ConvertBuildConfigurationToEnumAlias()
         {
 #if (DEBUG)
-            return EnumAlias.DEV;
+            return EnumAlias.Dev;
 #elif (RELEASE)
 			return EnumAlias.PROD;
 #elif (PRE)

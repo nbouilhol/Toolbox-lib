@@ -15,7 +15,7 @@ namespace Utilities.Functional.Task
             Contract.Requires(predicate != null);
             Contract.Requires(trueTask != null);
 
-            this.taskShouldBeDone = predicate;
+            taskShouldBeDone = predicate;
             this.trueTask = trueTask;
             this.falseTask = falseTask;
         }
@@ -30,10 +30,10 @@ namespace Utilities.Functional.Task
 
         public void Do()
         {
-            if (this.taskShouldBeDone())
-                this.trueTask.Do();
+            if (taskShouldBeDone())
+                trueTask.Do();
             else
-                this.falseTask.Do();
+                falseTask.Do();
         }
     }
 }

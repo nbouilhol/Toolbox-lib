@@ -18,11 +18,11 @@ namespace Utilities.Extensions
             return key => cache.GetOrAdd(key, new Lazy<TResult>(() => f(key))).Value;
         }
 
-        public static System.Threading.Tasks.Task Using<T>(Func<T> disposableAcquisition, Action<T> action) where T : IDisposable
+        public static Task Using<T>(Func<T> disposableAcquisition, Action<T> action) where T : IDisposable
         {
             T disposable = disposableAcquisition();
 
-            return System.Threading.Tasks.Task.Factory.StartNew(() => action(disposable))
+            return Task.Factory.StartNew(() => action(disposable))
                 .ContinueWith(task =>
                 {
                     if (!ReferenceEquals(disposable, null))
@@ -33,7 +33,7 @@ namespace Utilities.Extensions
                 });
         }
 
-        public static System.Threading.Tasks.Task Using<T>(Func<T> disposableAcquisition, Func<T, System.Threading.Tasks.Task> taskFunc) where T : IDisposable
+        public static Task Using<T>(Func<T> disposableAcquisition, Func<T, Task> taskFunc) where T : IDisposable
         {
             T instance = disposableAcquisition();
 

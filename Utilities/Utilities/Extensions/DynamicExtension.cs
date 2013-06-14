@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 
-namespace Utilities
+namespace Utilities.Extensions
 {
     public static class DynamicExtension
     {

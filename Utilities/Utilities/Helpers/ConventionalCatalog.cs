@@ -19,14 +19,14 @@ namespace Utilities.Helpers
         {
             ComposablePartDefinition part = ReflectionModelServices.CreatePartDefinition(new Lazy<Type>(() => typeof(TImplementation)), false, new Lazy<IEnumerable<ImportDefinition>>(() => GetImportDefinitions(typeof(TImplementation))), new Lazy<IEnumerable<ExportDefinition>>(() => GetExportDefinitions(typeof(TImplementation), typeof(TContract))), new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>()), null);
 
-            this._parts.Add(part);
+            _parts.Add(part);
         }
 
         public void RegisterType(Type concreteType, Type interfaceType)
         {
             ComposablePartDefinition part = ReflectionModelServices.CreatePartDefinition(new Lazy<Type>(() => concreteType), false, new Lazy<IEnumerable<ImportDefinition>>(() => GetImportDefinitions(concreteType)), new Lazy<IEnumerable<ExportDefinition>>(() => GetExportDefinitions(concreteType, interfaceType)), new Lazy<IDictionary<string, object>>(() => new Dictionary<string, object>()), null);
 
-            this._parts.Add(part);
+            _parts.Add(part);
         }
 
         private ImportDefinition[] GetImportDefinitions(Type implementationType)
@@ -70,7 +70,7 @@ namespace Utilities.Helpers
 
         public override IQueryable<ComposablePartDefinition> Parts
         {
-            get { return this._parts.AsQueryable(); }
+            get { return _parts.AsQueryable(); }
         }
 
         public override IEnumerable<Tuple<ComposablePartDefinition, ExportDefinition>> GetExports(ImportDefinition definition)

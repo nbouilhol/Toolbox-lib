@@ -26,7 +26,7 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(list != null);
 
-            using (SqlConnection sqlConnexion = new SqlConnection(this.connectionString))
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
                 bulkCopy.BatchSize = list.Count;
@@ -60,7 +60,7 @@ namespace Utilities.SqlHelpers
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -68,7 +68,7 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(data != null);
 
-            this.InsertWithDataBaseTypes(data.Cast<IDictionary<string, object>>());
+            InsertWithDataBaseTypes(data.Cast<IDictionary<string, object>>());
         }
 
         public void FastInsert(IEnumerable<IDictionary<string, object>> data)
@@ -77,11 +77,11 @@ namespace Utilities.SqlHelpers
 
             DataTable dataTable = null;
 
-            using (SqlConnection sqlConnexion = new SqlConnection(this.connectionString))
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnexion))
             {
                 bulkCopy.BatchSize = 5000;
-                bulkCopy.DestinationTableName = this.tableName;
+                bulkCopy.DestinationTableName = tableName;
 
                 if (sqlConnexion.State == ConnectionState.Closed)
                     sqlConnexion.Open();
@@ -89,7 +89,7 @@ namespace Utilities.SqlHelpers
                 foreach (IDictionary<string, object> record in data)
                 {
                     if (dataTable == null && bulkCopy != null && bulkCopy.ColumnMappings != null)
-                        dataTable = this.FastCreateDataTable(this.tableName, record.Keys, bulkCopy);
+                        dataTable = FastCreateDataTable(tableName, record.Keys, bulkCopy);
                     if (dataTable != null) dataTable.Rows.Add(record.Values.ToArray());
                 }
 
@@ -104,7 +104,7 @@ namespace Utilities.SqlHelpers
             string[] restrictions = new string[4];
             restrictions[3] = tableName;
 
-            return this.GetSchema("TABLES", restrictions);
+            return GetSchema("TABLES", restrictions);
         }
 
         public void InsertWithDataBaseTypes(IEnumerable<IDictionary<string, object>> data)
@@ -114,17 +114,17 @@ namespace Utilities.SqlHelpers
             int count = 0;
             DataTable dataTable = null;
 
-            using (SqlConnection sqlConnexion = new SqlConnection(this.connectionString))
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnexion))
             {
-                bulkCopy.DestinationTableName = this.tableName;
+                bulkCopy.DestinationTableName = tableName;
 
                 if (sqlConnexion.State == ConnectionState.Closed) sqlConnexion.Open();
 
                 foreach (IDictionary<string, object> record in data)
                 {
                     if (count == 0 && bulkCopy != null && bulkCopy.ColumnMappings != null && record != null)
-                        dataTable = this.CreateDataTable(this.tableName, record.Keys, bulkCopy);
+                        dataTable = CreateDataTable(tableName, record.Keys, bulkCopy);
                     if (dataTable != null && dataTable.Rows != null && record != null) dataTable.Rows.Add(record.Values.ToArray());
 
                     if (++count % 5000 == 0)
@@ -143,12 +143,12 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(data != null);
 
-            using (SqlConnection sqlConnexion = new SqlConnection(this.connectionString))
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnexion))
             using (ObjectDataReader<T> dataReader = new ObjectDataReader<T>(data.ToArray()))
             {
                 bulkCopy.BatchSize = 5000;
-                bulkCopy.DestinationTableName = this.tableName;
+                bulkCopy.DestinationTableName = tableName;
 
                 if (sqlConnexion.State == ConnectionState.Closed)
                     sqlConnexion.Open();
@@ -161,18 +161,18 @@ namespace Utilities.SqlHelpers
         {
             Contract.Requires(data != null);
 
-            using (SqlConnection sqlConnexion = new SqlConnection(this.connectionString))
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(sqlConnexion))
             {
                 bulkCopy.BatchSize = 5000;
-                bulkCopy.DestinationTableName = this.tableName;
+                bulkCopy.DestinationTableName = tableName;
 
                 if (sqlConnexion.State == ConnectionState.Closed)
                     sqlConnexion.Open();
 
                 if (bulkCopy != null && bulkCopy.ColumnMappings != null)
                 {
-                    DataTable dataTable = this.CreateDataTable(this.tableName, data, bulkCopy);
+                    DataTable dataTable = CreateDataTable(tableName, data, bulkCopy);
                     bulkCopy.WriteToServer(dataTable);
                 }
             }
@@ -210,7 +210,7 @@ namespace Utilities.SqlHelpers
             Contract.Requires(keys != null);
             Contract.Requires(bulkCopy != null && bulkCopy.ColumnMappings != null);
 
-            IDictionary<string, Type> schema = this.GetColumns(tableName).ToDictionary(d => d.Key, d => d.Value);
+            IDictionary<string, Type> schema = GetColumns(tableName).ToDictionary(d => d.Key, d => d.Value);
             DataTable dataTable = new DataTable(tableName);
 
             foreach (var key in keys)
@@ -245,7 +245,7 @@ namespace Utilities.SqlHelpers
 
         private IEnumerable<KeyValuePair<string, Type>> GetColumns(string tableName)
         {
-            DataTable dt = this.GetTable(tableName);
+            DataTable dt = GetTable(tableName);
 
             foreach (DataRow row in dt.Rows)
                 if ((row["TABLE_NAME"] as string) == tableName)
@@ -254,7 +254,7 @@ namespace Utilities.SqlHelpers
 
         private DataTable GetSchema(string collectionName, params string[] constraints)
         {
-            using (SqlConnection sqlConnexion = new SqlConnection(this.connectionString))
+            using (SqlConnection sqlConnexion = new SqlConnection(connectionString))
             {
                 if (sqlConnexion.State == ConnectionState.Closed)
                     sqlConnexion.Open();

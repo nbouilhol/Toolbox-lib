@@ -4,26 +4,26 @@ namespace Utilities.AOP
 {
     public class ActionWrapper<T> : BaseWrapper<T> where T : class
     {
-        private readonly Action<T> actionBefore;
-        private readonly Action<T> actionAfter;
+        private readonly Action<T> _actionBefore;
+        private readonly Action<T> _actionAfter;
 
         public ActionWrapper(T source, Action<T> actionBefore, Action<T> actionAfter)
             : base(source)
         {
-            this.actionBefore = actionBefore;
-            this.actionAfter = actionAfter;
+            _actionBefore = actionBefore;
+            _actionAfter = actionAfter;
         }
 
         public override void OnEntry(T source, string methodName, object[] args)
         {
-            if (actionBefore != null)
-                actionBefore(source);
+            if (_actionBefore != null)
+                _actionBefore(source);
         }
 
         public override void OnExit(T source, string methodName, object[] args, object result)
         {
-            if (actionAfter != null)
-                actionAfter(source);
+            if (_actionAfter != null)
+                _actionAfter(source);
         }
     }
 

@@ -7,37 +7,37 @@ namespace Utilities.DomainCommands
 {
     public partial class Bus : IBus
     {
-        private readonly Lazy<TaskFactory<ICommandResult>> handleFactory;
-        private readonly Lazy<TaskFactory<IEnumerable<ValidationResult>>> validateFactory;
-        private readonly IRegistrationService registrationService;
+        private readonly Lazy<TaskFactory<ICommandResult>> _handleFactory;
+        private readonly Lazy<TaskFactory<IEnumerable<ValidationResult>>> _validateFactory;
+        private readonly IRegistrationService _registrationService;
 
         public Bus(IRegistrationService registrationService)
         {
-            this.registrationService = registrationService;
-            this.handleFactory = new Lazy<TaskFactory<ICommandResult>>(() => Task<ICommandResult>.Factory, true);
-            this.validateFactory = new Lazy<TaskFactory<IEnumerable<ValidationResult>>>(() => Task<IEnumerable<ValidationResult>>.Factory, true);
+            _registrationService = registrationService;
+            _handleFactory = new Lazy<TaskFactory<ICommandResult>>(() => Task<ICommandResult>.Factory, true);
+            _validateFactory = new Lazy<TaskFactory<IEnumerable<ValidationResult>>>(() => Task<IEnumerable<ValidationResult>>.Factory, true);
         }
 
         public IEnumerable<ICommandResult> Execute<TCommand>(TCommand command) where TCommand : ICommand
         {
-            return this.registrationService.GetCommandRegistrations<TCommand>().AsParallel().Select(handler => ExecuteCommand(handler, command)).ToList();
+            return _registrationService.GetCommandRegistrations<TCommand>().AsParallel().Select(handler => ExecuteCommand(handler, command)).ToList();
         }
 
         public IEnumerable<IEnumerable<ValidationResult>> Validate<TCommand>(TCommand command) where TCommand : ICommand
         {
-            return this.registrationService.GetValidationRegistrations<TCommand>().AsParallel().Select(handler => ExecuteValidation(handler, command)).ToList();
+            return _registrationService.GetValidationRegistrations<TCommand>().AsParallel().Select(handler => ExecuteValidation(handler, command)).ToList();
         }
 
         public IEnumerable<Task<ICommandResult>> ExecuteAsync<TCommand>(TCommand command) where TCommand : ICommand
         {
-            return this.registrationService.GetCommandRegistrations<TCommand>().AsParallel()
-                .Select(handler => handleFactory.Value.StartNew(() => ExecuteCommand(handler, command)));
+            return _registrationService.GetCommandRegistrations<TCommand>().AsParallel()
+                .Select(handler => _handleFactory.Value.StartNew(() => ExecuteCommand(handler, command)));
         }
 
         public IEnumerable<Task<IEnumerable<ValidationResult>>> ValidateAsync<TCommand>(TCommand command) where TCommand : ICommand
         {
-            return this.registrationService.GetValidationRegistrations<TCommand>().AsParallel()
-                .Select(handler => validateFactory.Value.StartNew(() => ExecuteValidation(handler, command)));
+            return _registrationService.GetValidationRegistrations<TCommand>().AsParallel()
+                .Select(handler => _validateFactory.Value.StartNew(() => ExecuteValidation(handler, command)));
         }
 
         private static ICommandResult ExecuteCommand<TCommand>(ICommandHandler<TCommand> handler, TCommand command) where TCommand : ICommand

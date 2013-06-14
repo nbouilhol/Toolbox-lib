@@ -7,27 +7,28 @@ namespace Utilities.DomainCommands
 {
     public class CommandRegistrations : IRegistrationService, IDisposable
     {
-        private readonly ConcurrentDictionary<Type, ICollection<ICommandHandler<dynamic>>> commandHandlers;
-        private readonly ConcurrentDictionary<Type, ICollection<IValidationHandler<dynamic>>> validationHandlers;
-        private readonly Func<Type, bool> filterByICommandHandler;
-        private readonly Func<Type, bool> filterByIValidationHandler;
+        private readonly ConcurrentDictionary<Type, ICollection<ICommandHandler<dynamic>>> _commandHandlers;
+        private readonly ConcurrentDictionary<Type, ICollection<IValidationHandler<dynamic>>> _validationHandlers;
+        private readonly Func<Type, bool> _filterByICommandHandler;
+        private readonly Func<Type, bool> _filterByIValidationHandler;
 
         public CommandRegistrations()
         {
-            commandHandlers = new ConcurrentDictionary<Type, ICollection<ICommandHandler<dynamic>>>();
-            validationHandlers = new ConcurrentDictionary<Type, ICollection<IValidationHandler<dynamic>>>();
-            filterByICommandHandler = i => FilterByType(i, typeof(ICommandHandler<>));
-            filterByIValidationHandler = i => FilterByType(i, typeof(IValidationHandler<>));
+            _commandHandlers = new ConcurrentDictionary<Type, ICollection<ICommandHandler<dynamic>>>();
+            _validationHandlers = new ConcurrentDictionary<Type, ICollection<IValidationHandler<dynamic>>>();
+            _filterByICommandHandler = i => FilterByType(i, typeof(ICommandHandler<>));
+            _filterByIValidationHandler = i => FilterByType(i, typeof(IValidationHandler<>));
         }
 
         public CommandRegistrations Add<THandler>(THandler handler)
         {
-            IEnumerable<Type> interfaceTypes = GetHandlerInterfaces<THandler>(handler);
+            IEnumerable<Type> interfaceTypes = GetHandlerInterfaces(handler);
 
-            if (interfaceTypes.Any(filterByICommandHandler))
-                commandHandlers.TryAdd(interfaceTypes.FirstOrDefault(filterByICommandHandler), new List<ICommandHandler<dynamic>> { handler as ICommandHandler<dynamic> });
-            else if (interfaceTypes.Any(filterByIValidationHandler))
-                validationHandlers.TryAdd(interfaceTypes.FirstOrDefault(filterByIValidationHandler), new List<IValidationHandler<dynamic>> { handler as IValidationHandler<dynamic> });
+            IEnumerable<Type> enumerable = interfaceTypes as IList<Type> ?? interfaceTypes.ToList();
+            if (enumerable.Any(_filterByICommandHandler))
+                _commandHandlers.TryAdd(enumerable.FirstOrDefault(_filterByICommandHandler), new List<ICommandHandler<dynamic>> { handler as ICommandHandler<dynamic> });
+            else if (enumerable.Any(_filterByIValidationHandler))
+                _validationHandlers.TryAdd(enumerable.FirstOrDefault(_filterByIValidationHandler), new List<IValidationHandler<dynamic>> { handler as IValidationHandler<dynamic> });
 
             return this;
         }
@@ -46,7 +47,7 @@ namespace Utilities.DomainCommands
         public IEnumerable<ICommandHandler<TCommand>> GetCommandRegistrations<TCommand>() where TCommand : ICommand
         {
             ICollection<ICommandHandler<dynamic>> handler;
-            if (commandHandlers.TryGetValue(typeof(TCommand), out handler))
+            if (_commandHandlers.TryGetValue(typeof(TCommand), out handler))
                 return handler as IEnumerable<ICommandHandler<TCommand>>;
             return null;
         }
@@ -54,7 +55,7 @@ namespace Utilities.DomainCommands
         public IEnumerable<IValidationHandler<TCommand>> GetValidationRegistrations<TCommand>() where TCommand : ICommand
         {
             ICollection<IValidationHandler<dynamic>> handler;
-            if (validationHandlers.TryGetValue(typeof(TCommand), out handler))
+            if (_validationHandlers.TryGetValue(typeof(TCommand), out handler))
                 return handler as IEnumerable<IValidationHandler<TCommand>>;
             return null;
         }
@@ -67,8 +68,8 @@ namespace Utilities.DomainCommands
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing) if (this.commandHandlers != null) this.commandHandlers.Clear();
-            if (disposing) if (this.validationHandlers != null) this.validationHandlers.Clear();
+            if (disposing) if (_commandHandlers != null) _commandHandlers.Clear();
+            if (disposing) if (_validationHandlers != null) _validationHandlers.Clear();
         }
 
         ~CommandRegistrations()

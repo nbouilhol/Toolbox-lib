@@ -13,8 +13,8 @@ namespace Utilities.Functional.Task
             Contract.Requires(predicate != null);
             Contract.Requires(task != null);
 
-            this.taskShouldBeDone = predicate;
-            this.decoratedTask = task;
+            taskShouldBeDone = predicate;
+            decoratedTask = task;
         }
 
         [ContractInvariantMethod]
@@ -26,8 +26,8 @@ namespace Utilities.Functional.Task
 
         public void Do()
         {
-            if (this.taskShouldBeDone())
-                this.decoratedTask.Do();
+            if (taskShouldBeDone())
+                decoratedTask.Do();
         }
     }
 }

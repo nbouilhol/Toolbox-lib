@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Utilities
+namespace Utilities.Helpers
 {
     public class Levenshtein
     {
@@ -18,7 +18,7 @@ namespace Utilities
 
             int m = target.Length;
             int n = source.Length;
-            int[,] distance = new int[2, m + 1];
+            var distance = new int[2, m + 1];
 
             for (int j = 1; j <= m; j++)
                 distance[0, j] = j;

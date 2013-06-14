@@ -10,17 +10,17 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class PropertyAccessor<TData>
     {
-        private readonly Func<TData, object>[] accessors;
-        private readonly IDictionary<string, int> ordinalLookup;
-        private static readonly Lazy<PropertyAccessor<TData>> instanceCache = new Lazy<PropertyAccessor<TData>>(() => new PropertyAccessor<TData>());
+        private readonly Func<TData, object>[] _accessors;
+        private readonly IDictionary<string, int> _ordinalLookup;
+        private static readonly Lazy<PropertyAccessor<TData>> InstanceCache = new Lazy<PropertyAccessor<TData>>(() => new PropertyAccessor<TData>());
 
-        public Func<TData, object>[] Accessors { get { return accessors; } }
+        public Func<TData, object>[] Accessors { get { return _accessors; } }
 
-        public IDictionary<string, int> OrdinalLookup { get { return ordinalLookup; } }
+        public IDictionary<string, int> OrdinalLookup { get { return _ordinalLookup; } }
 
         public PropertyAccessor()
         {
-            var propertyAccessors = typeof(TData).GetPropertiesInfoWithInterfaces(BindingFlags.Instance | BindingFlags.Public)
+            var propertyAccessors = typeof(TData).GetPropertiesInfoWithInterfaces()
                 .Where(property => property.CanRead && (NotMappedAttribute)Attribute.GetCustomAttribute(property, typeof(NotMappedAttribute)) == null)
                 .Select((p, i) => new
                 {
@@ -29,13 +29,13 @@ namespace Utilities.SqlHelpers.Mapper
                     Accessor = CreatePropertyAccessor(p)
                 }).ToArray();
 
-            this.accessors = propertyAccessors.Select(p => p.Accessor).ToArray();
-            this.ordinalLookup = propertyAccessors.ToDictionary(p => MapPropertyName(p.Property), p => p.Index, StringComparer.OrdinalIgnoreCase);
+            _accessors = propertyAccessors.Select(p => p.Accessor).ToArray();
+            _ordinalLookup = propertyAccessors.ToDictionary(p => MapPropertyName(p.Property), p => p.Index, StringComparer.OrdinalIgnoreCase);
         }
 
         public static PropertyAccessor<TData> Create()
         {
-            return instanceCache.Value;
+            return InstanceCache.Value;
         }
 
         private static Func<TData, object> CreatePropertyAccessor(PropertyInfo propertyInfo)

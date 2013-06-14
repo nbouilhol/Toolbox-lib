@@ -13,14 +13,14 @@ namespace Utilities.Functional.Task
         {
             Contract.Requires(tasks != null);
 
-            this.AddTasks(tasks);
+            AddTasks(tasks);
         }
 
         public TaskComposite(IEnumerable<ITask> tasks)
         {
             Contract.Requires(tasks != null);
 
-            this.AddTasks(tasks);
+            AddTasks(tasks);
         }
 
         [ContractInvariantMethod]
@@ -31,10 +31,10 @@ namespace Utilities.Functional.Task
 
         public void Do()
         {
-            while (!this.composedTasks.IsCompleted)
+            while (!composedTasks.IsCompleted)
             {
                 ITask task;
-                if (this.composedTasks.TryTake(out task, TimeSpan.FromSeconds(1.0)))
+                if (composedTasks.TryTake(out task, TimeSpan.FromSeconds(1.0)))
                     if (task != null) task.Do();
             }
         }
@@ -43,7 +43,7 @@ namespace Utilities.Functional.Task
         {
             if (task == null)
                 return;
-            this.composedTasks.Add(task);
+            composedTasks.Add(task);
         }
 
         public void AddTasks(IEnumerable<ITask> tasks)
@@ -51,7 +51,7 @@ namespace Utilities.Functional.Task
             if (tasks == null)
                 return;
             foreach (var task in tasks)
-                this.composedTasks.Add(task);
+                composedTasks.Add(task);
         }
 
         public void Dispose()
@@ -63,8 +63,8 @@ namespace Utilities.Functional.Task
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
-                if (this.composedTasks != null)
-                    this.composedTasks.Dispose();
+                if (composedTasks != null)
+                    composedTasks.Dispose();
         }
 
         //~TaskComposite()

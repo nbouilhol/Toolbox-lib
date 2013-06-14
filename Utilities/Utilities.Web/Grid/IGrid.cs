@@ -40,7 +40,7 @@ namespace Mvc.Helper.Grid
 
     public interface IGrid : IEnumerable
     {
-        Func<int, int, string, Mvc.Helper.Sorting.SortDirection?, string, string> Url { get; }
+        Func<int, int, string, SortDirection?, string, string> Url { get; }
 
         ISort Sort { get; }
 

@@ -14,7 +14,7 @@ namespace Utilities.NLog
 
         public static ILog Log(this string objectName)
         {
-            return _dictionary.GetOrAdd(objectName, Utilities.NLog.Log.GetLoggerFor);
+            return _dictionary.GetOrAdd(objectName, NLog.Log.GetLoggerFor);
         }
     }
 }

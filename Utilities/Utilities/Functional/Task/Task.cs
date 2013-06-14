@@ -13,7 +13,7 @@ namespace Utilities.Functional.Task
 
         public void Do()
         {
-            this.action();
+            action();
         }
     }
 }

@@ -25,8 +25,8 @@ namespace Utilities.Functional.Task
 
         public void Do()
         {
-            this.objectToCancel.Cancel();
-            this.taskToRun.Do();
+            objectToCancel.Cancel();
+            taskToRun.Do();
         }
     }
 }

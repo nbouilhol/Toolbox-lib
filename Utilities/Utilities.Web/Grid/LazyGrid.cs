@@ -20,7 +20,7 @@ namespace Mvc.Helper.Grid
         private IPagination pagination;
         private ISort sort;
         private ISearch search;
-        private Func<int, int, string, Mvc.Helper.Sorting.SortDirection?, string, string> url;
+        private Func<int, int, string, SortDirection?, string, string> url;
         private IEnumerable<T> result;
 
         public LazyGrid(IQueryable<T> query)
@@ -30,10 +30,10 @@ namespace Mvc.Helper.Grid
 
         public LazyGrid(IGrid grid, IEnumerable<T> result)
         {
-            this.search = grid.Search;
-            this.pagination = grid.Pagination;
-            this.sort = grid.Sort;
-            this.url = grid.Url;
+            search = grid.Search;
+            pagination = grid.Pagination;
+            sort = grid.Sort;
+            url = grid.Url;
             this.result = result;
         }
 
@@ -149,7 +149,7 @@ namespace Mvc.Helper.Grid
             return ((IEnumerable<T>)this).GetEnumerator();
         }
 
-        public Func<int, int, string, Mvc.Helper.Sorting.SortDirection?, string, string> Url
+        public Func<int, int, string, SortDirection?, string, string> Url
         {
             get { return url; }
         }

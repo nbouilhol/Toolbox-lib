@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Caching;
 
@@ -10,47 +11,47 @@ namespace Utilities.Storage
         where TKey : class
         where TResult : class
     {
-        private ObjectCache cache;
-        private readonly int minutesBeforeDelete;
+        private readonly ObjectCache _cache;
+        private readonly int _minutesBeforeDelete;
 
         public MemoryCacheManager(int minutes)
         {
-            this.minutesBeforeDelete = minutes;
-            cache = MemoryCache.Default;
+            _minutesBeforeDelete = minutes;
+            _cache = MemoryCache.Default;
         }
 
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(cache != null);
+            Contract.Invariant(_cache != null);
         }
 
         public bool Contains(TKey param)
         {
-            return cache.Contains(param.GetHashCode().ToString());
+            return _cache.Contains(param.GetHashCode().ToString(CultureInfo.InvariantCulture));
         }
 
         public TResult Get(TKey param)
         {
-            return cache.Get(param.GetHashCode().ToString()) as TResult;
+            return _cache.Get(param.GetHashCode().ToString(CultureInfo.InvariantCulture)) as TResult;
         }
 
         public void Add(TKey param, TResult result)
         {
-            if (minutesBeforeDelete == default(int))
+            if (_minutesBeforeDelete == default(int))
                 return;
 
-            cache.Set(param.GetHashCode().ToString(), result, DateTimeOffset.Now.AddMinutes(minutesBeforeDelete));
+            _cache.Set(param.GetHashCode().ToString(CultureInfo.InvariantCulture), result, DateTimeOffset.Now.AddMinutes(_minutesBeforeDelete));
         }
 
         public void Clear(TKey param)
         {
-            cache.Remove(param.GetHashCode().ToString());
+            _cache.Remove(param.GetHashCode().ToString(CultureInfo.InvariantCulture));
         }
 
         public IEnumerable<string> GetAll()
         {
-            return cache.Select(keyValuePair => keyValuePair.Key).ToList();
+            return _cache.Select(keyValuePair => keyValuePair.Key).ToList();
         }
     }
 }

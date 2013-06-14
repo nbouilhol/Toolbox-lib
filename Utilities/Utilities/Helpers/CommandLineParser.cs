@@ -10,9 +10,9 @@ namespace Utilities.Helpers
     [Export]
     public class CommandLineParser
     {
-        private static readonly Lazy<CommandLineParser> instanceCache = new Lazy<CommandLineParser>(() => new CommandLineParser());
+        private static readonly Lazy<CommandLineParser> InstanceCache = new Lazy<CommandLineParser>(() => new CommandLineParser());
 
-        [System.ComponentModel.Composition.ImportingConstructor]
+        [ImportingConstructor]
         public CommandLineParser() : this(Environment.CommandLine) { }
 
         public CommandLineParser(string commandLine)
@@ -33,10 +33,10 @@ namespace Utilities.Helpers
 
         public static CommandLineParser Create()
         {
-            return instanceCache.Value;
+            return InstanceCache.Value;
         }
 
-        protected virtual void Parse(string commandLine)
+        protected void Parse(string commandLine)
         {
             ApplicationName = ParseApplicationName(commandLine);
             Switches = ParseSwitches(commandLine);
@@ -45,7 +45,7 @@ namespace Utilities.Helpers
 
         protected virtual string ParseApplicationName(string commandLine)
         {
-            Regex regex = new Regex(Constants.ApplicationNamePatternConstant, RegexOptions.IgnorePatternWhitespace);
+            var regex = new Regex(Constants.ApplicationNamePatternConstant, RegexOptions.IgnorePatternWhitespace);
             Match match = regex.Match(CommandLine);
 
             return match.Success ? match.Groups["value"].Value : null;
@@ -53,7 +53,7 @@ namespace Utilities.Helpers
 
         protected virtual IEnumerable<string> ParseParameters(string commandLine)
         {
-            Regex regex = new Regex(Constants.ParameterPatternConstant, RegexOptions.IgnorePatternWhitespace);
+            var regex = new Regex(Constants.ParameterPatternConstant, RegexOptions.IgnorePatternWhitespace);
             MatchCollection matchCollection = regex.Matches(commandLine);
 
             return matchCollection.Cast<Match>().Select(match => match.Groups["param"].Value);
@@ -61,7 +61,7 @@ namespace Utilities.Helpers
 
         protected virtual IDictionary<string, string> ParseSwitches(string commandLine)
         {
-            Regex regex = new Regex(Constants.NonNamedSwitchPatternConstant, RegexOptions.IgnorePatternWhitespace);
+            var regex = new Regex(Constants.NonNamedSwitchPatternConstant, RegexOptions.IgnorePatternWhitespace);
             MatchCollection matchCollection = regex.Matches(commandLine);
 
             return matchCollection.Cast<Match>().ToDictionary(match => match.Groups["key"].Value, match => match.Groups["value"].Value);

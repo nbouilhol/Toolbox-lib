@@ -25,7 +25,7 @@ namespace Utilities.SqlHelpers
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(this.dataReader != null);
+            Contract.Invariant(dataReader != null);
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)

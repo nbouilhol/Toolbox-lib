@@ -109,7 +109,7 @@ namespace Utilities
 
                 if (binder.ReturnType == typeof(XElement))
                 {
-                    result = this.element;
+                    result = element;
                     return true;
                 }
                 else if (type == typeof(IEnumerable<dynamic>) || type == typeof(IEnumerable<object>))
@@ -122,7 +122,7 @@ namespace Utilities
                     result = (dynamic)element;
                     return true;
                 }
-                else if (DynamicXmlExtensions.TryXmlConvert(this.element.Value, binder.ReturnType, out result))
+                else if (DynamicXmlExtensions.TryXmlConvert(element.Value, binder.ReturnType, out result))
                     return true;
                 else
                     result = !string.IsNullOrEmpty(element.Value) ? Convert.ChangeType(element.Value, type) : GetDefault(type);
@@ -153,7 +153,7 @@ namespace Utilities
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
         {
             XName name = GetNameIndex(indexes);
-            XAttribute existingAttr = this.element.Attribute(name);
+            XAttribute existingAttr = element.Attribute(name);
 
             if (existingAttr != null)
             {
@@ -161,7 +161,7 @@ namespace Utilities
                 return true;
             }
 
-            IEnumerable<XElement> matches = this.element.Elements(name);
+            IEnumerable<XElement> matches = element.Elements(name);
 
             if (matches.IsCollection())
                 result = new DynamicXmlElements(matches);
@@ -175,7 +175,7 @@ namespace Utilities
         {
             XName name = GetNameIndex(indexes);
 
-            XAttribute existingAttr = this.element.Attribute(name);
+            XAttribute existingAttr = element.Attribute(name);
             if (existingAttr != null)
             {
                 if (value is XAttribute)
@@ -185,15 +185,15 @@ namespace Utilities
                 return true;
             }
 
-            XElement existingEl = this.element.Element(name);
+            XElement existingEl = element.Element(name);
             if (existingEl != null)
                 existingEl.SetValue(value);
             else
             {
                 if (value is XAttribute)
-                    this.element.Add((XAttribute)value);
+                    element.Add((XAttribute)value);
                 else
-                    this.element.Add(new XAttribute(name, value));
+                    element.Add(new XAttribute(name, value));
             }
 
             return true;
@@ -203,7 +203,7 @@ namespace Utilities
         {
             if (binder == null) { result = null; return false; }
 
-            IEnumerable<XElement> matches = this.element.Elements().Where(x => x.Name.LocalName.Equals(binder.Name));
+            IEnumerable<XElement> matches = element.Elements().Where(x => x.Name.LocalName.Equals(binder.Name));
             if (matches.IsCollection())
                 result = new DynamicXmlElements(matches);
             else
@@ -218,7 +218,7 @@ namespace Utilities
 
             if (binder.ReturnType == typeof(XElement))
             {
-                result = this.element;
+                result = element;
                 return true;
             }
             else if (binder.Type == typeof(IEnumerable<dynamic>) || binder.Type == typeof(IEnumerable<object>))
@@ -231,7 +231,7 @@ namespace Utilities
                 result = (dynamic)element;
                 return true;
             }
-            else if (DynamicXmlExtensions.TryXmlConvert(this.element.Value, binder.ReturnType, out result))
+            else if (DynamicXmlExtensions.TryXmlConvert(element.Value, binder.ReturnType, out result))
                 return true;
             else
                 result = !string.IsNullOrEmpty(element.Value) ? Convert.ChangeType(element.Value, binder.Type) : GetDefault(binder.Type);
@@ -262,7 +262,7 @@ namespace Utilities
                 return (TResult)((dynamic)this);
 
             object result;
-            if (DynamicXmlExtensions.TryXmlConvert(this.element.Value, typeof(TResult), out result))
+            if (DynamicXmlExtensions.TryXmlConvert(element.Value, typeof(TResult), out result))
                 return (TResult)result;
             else
                 return (TResult)(!string.IsNullOrEmpty(element.Value) ? Convert.ChangeType(element.Value, typeof(TResult)) : GetDefault(typeof(TResult)));
@@ -291,12 +291,12 @@ namespace Utilities
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.element.Elements().Select(el => new DynamicXmlElement(el)).GetEnumerator();
+            return element.Elements().Select(el => new DynamicXmlElement(el)).GetEnumerator();
         }
 
         IEnumerator<DynamicObject> IEnumerable<DynamicObject>.GetEnumerator()
         {
-            return this.element.Elements().Select(el => new DynamicXmlElement(el)).GetEnumerator();
+            return element.Elements().Select(el => new DynamicXmlElement(el)).GetEnumerator();
         }
 
         private static Delegate CreateNewExpression(Type type)
@@ -336,10 +336,10 @@ namespace Utilities
         {
             if (binder.ReturnType == typeof(XAttribute))
             {
-                result = this.attribute;
+                result = attribute;
                 return true;
             }
-            else if (DynamicXmlExtensions.TryXmlConvert(this.attribute.Value, binder.ReturnType, out result))
+            else if (DynamicXmlExtensions.TryXmlConvert(attribute.Value, binder.ReturnType, out result))
                 return true;
 
             return base.TryConvert(binder, out result);
@@ -347,7 +347,7 @@ namespace Utilities
 
         public override string ToString()
         {
-            return this.attribute.Value;
+            return attribute.Value;
         }
     }
 
@@ -383,7 +383,7 @@ namespace Utilities
             var first = indexes.First();
             if (indexes.Length == 1 && first is int)
             {
-                result = new DynamicXmlElement(this.elements[(int)first]);
+                result = new DynamicXmlElement(elements[(int)first]);
                 return true;
             }
 
@@ -392,7 +392,7 @@ namespace Utilities
 
         public IEnumerator<XElement> GetEnumerator()
         {
-            return this.elements.GetEnumerator();
+            return elements.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -402,7 +402,7 @@ namespace Utilities
 
         IEnumerator<DynamicObject> IEnumerable<DynamicObject>.GetEnumerator()
         {
-            return this.elements.Select(el => new DynamicXmlElement(el)).GetEnumerator();
+            return elements.Select(el => new DynamicXmlElement(el)).GetEnumerator();
         }
     }
 }

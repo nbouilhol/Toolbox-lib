@@ -8,7 +8,7 @@ namespace Utilities.QueryBuilder
 
         public SqlJoinBuilder(SqlQueryRequest sqlQueryRequest)
         {
-            this._sqlQueryRequest = sqlQueryRequest;
+            _sqlQueryRequest = sqlQueryRequest;
         }
 
         private void JoinFactory(string jointType, string toTableName, SqlComparisonBuilder sqlComaraison)

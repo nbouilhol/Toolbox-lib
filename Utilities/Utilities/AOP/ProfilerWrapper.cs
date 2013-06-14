@@ -5,9 +5,9 @@ namespace Utilities.AOP
 {
     public class ProfilerWrapper<T> : BaseWrapper<T> where T : class
     {
-        private readonly Stopwatch stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new Stopwatch();
 
-        public Stopwatch Stopwatch { get { return stopwatch; } }
+        public Stopwatch Stopwatch { get { return _stopwatch; } }
 
         public ProfilerWrapper(T source)
             : base(source)
@@ -16,13 +16,13 @@ namespace Utilities.AOP
 
         public override void OnEntry(T source, string methodName, object[] args)
         {
-            stopwatch.Restart();
+            _stopwatch.Restart();
         }
 
         public override void OnExit(T source, string methodName, object[] args, object result)
         {
-            stopwatch.Stop();
-            if (Console.Out != null) Console.Out.WriteLine("Method({0}.{1}) call in {2} ms", typeof(T).Name, methodName, stopwatch.Elapsed.TotalMilliseconds);
+            _stopwatch.Stop();
+            if (Console.Out != null) Console.Out.WriteLine("Method({0}.{1}) call in {2} ms", typeof(T).Name, methodName, _stopwatch.Elapsed.TotalMilliseconds);
         }
     }
 

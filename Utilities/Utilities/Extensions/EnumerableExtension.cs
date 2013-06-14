@@ -11,8 +11,7 @@ namespace Utilities.Extensions
         {
             if (list == null)
                 return null;
-
-            return list.Where(x => x != null);
+            return list.Where(x => !EqualityComparer<T>.Default.Equals(x, default (T)));
         }
 
         public static List<T> InList<T>(this T item)
@@ -54,8 +53,9 @@ namespace Utilities.Extensions
             Contract.Requires(source != null);
             Contract.Requires(aggregate != null);
 
-            for (int cpt = 0; source.Count() > cpt; cpt += following)
-                yield return aggregate(source.Skip(cpt).Take(following));
+            IEnumerable<T> enumerable = source as IList<T> ?? source.ToList();
+            for (int cpt = 0; enumerable.Count() > cpt; cpt += following)
+                yield return aggregate(enumerable.Skip(cpt).Take(following));
         }
 
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
@@ -100,11 +100,9 @@ namespace Utilities.Extensions
                     TSource candidate = sourceIterator.Current;
                     TKey candidateProjected = selector(candidate);
 
-                    if (comparer.Compare(candidateProjected, maxKey) > 0)
-                    {
-                        max = candidate;
-                        maxKey = candidateProjected;
-                    }
+                    if (comparer.Compare(candidateProjected, maxKey) <= 0) continue;
+                    max = candidate;
+                    maxKey = candidateProjected;
                 }
 
                 return max;

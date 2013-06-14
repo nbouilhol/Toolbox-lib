@@ -10,7 +10,7 @@ namespace Utilities.QueryBuilder
 
         public SqlSelectBuilder(SqlQueryRequest sqlQueryRequest)
         {
-            this._sqlQueryRequest = sqlQueryRequest;
+            _sqlQueryRequest = sqlQueryRequest;
         }
 
         public void Distinct()

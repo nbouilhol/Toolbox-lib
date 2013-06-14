@@ -10,8 +10,8 @@ namespace Utilities.Storage
 {
     public sealed class ObjectPool<T> : IProducerConsumerCollection<T>
     {
-        private readonly Func<T> generator;
-        private readonly IProducerConsumerCollection<T> objects;
+        private readonly Func<T> _generator;
+        private readonly IProducerConsumerCollection<T> _objects;
 
         public ObjectPool()
             : this(() => default(T), new ConcurrentQueue<T>(), null)
@@ -41,21 +41,21 @@ namespace Utilities.Storage
             Contract.Requires(objects != null);
             Contract.Requires(generator != null);
 
-            this.generator = generator;
-            this.objects = objects;
+            _generator = generator;
+            _objects = objects;
             if (items != null) Adds(items);
         }
 
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(this.generator != null);
-            Contract.Invariant(this.objects != null);
+            Contract.Invariant(_generator != null);
+            Contract.Invariant(_objects != null);
         }
 
         public ObjectPool<T> Add(T item)
         {
-            objects.TryAdd(item);
+            _objects.TryAdd(item);
             return this;
         }
 
@@ -69,7 +69,7 @@ namespace Utilities.Storage
         {
             Contract.Requires(items != null);
 
-            items.ForEach(i => objects.TryAdd(i));
+            items.ForEach(i => _objects.TryAdd(i));
             return this;
         }
 
@@ -83,7 +83,7 @@ namespace Utilities.Storage
         public T Take()
         {
             T value;
-            return objects.TryTake(out value) ? value : generator();
+            return _objects.TryTake(out value) ? value : _generator();
         }
 
         public bool TryTake(out T item)
@@ -95,47 +95,47 @@ namespace Utilities.Storage
         public IEnumerable<T> Takes()
         {
             T value;
-            while (objects.TryTake(out value)) yield return value;
+            while (_objects.TryTake(out value)) yield return value;
         }
 
         public T[] ToArray()
         {
-            return objects.ToArray();
+            return _objects.ToArray();
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return objects.GetEnumerator();
+            return _objects.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return objects.GetEnumerator();
+            return _objects.GetEnumerator();
         }
 
         public void CopyTo(T[] array, int index)
         {
-            objects.CopyTo(array, index);
+            _objects.CopyTo(array, index);
         }
 
         public void CopyTo(Array array, int index)
         {
-            objects.CopyTo(array, index);
+            _objects.CopyTo(array, index);
         }
 
         public int Count
         {
-            get { return objects.Count; }
+            get { return _objects.Count; }
         }
 
         public bool IsSynchronized
         {
-            get { return objects.IsSynchronized; }
+            get { return _objects.IsSynchronized; }
         }
 
         public object SyncRoot
         {
-            get { return objects.SyncRoot; }
+            get { return _objects.SyncRoot; }
         }
     }
 }

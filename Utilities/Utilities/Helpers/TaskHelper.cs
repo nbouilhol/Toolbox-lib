@@ -46,7 +46,7 @@ namespace Utilities
 
         public IAsyncResult BeginInvoke(TArg arg, AsyncCallback callback)
         {
-            Task<TResult> task = this.operation(arg);
+            Task<TResult> task = operation(arg);
             if (task != null) task.ContinueWith(_ => callback(task));
             return task;
         }
@@ -61,7 +61,7 @@ namespace Utilities
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(this.operation != null);
+            Contract.Invariant(operation != null);
         }
     }
 }

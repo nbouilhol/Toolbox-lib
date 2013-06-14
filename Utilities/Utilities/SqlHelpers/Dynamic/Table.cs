@@ -1,18 +1,14 @@
 ﻿using System.Dynamic;
 
-namespace Utilities.SqlHelpers
+namespace Utilities.SqlHelpers.Dynamic
 {
     public class Table : DynamicObject
     {
-        private readonly string connectionString;
-        private readonly string table;
-        private readonly DynamicQuery dynamicQuery;
+        private readonly DynamicQuery _dynamicQuery;
 
         public Table(string connectionString, string table)
         {
-            this.connectionString = connectionString;
-            this.table = table;
-            this.dynamicQuery = new DynamicQuery(connectionString, table);
+            _dynamicQuery = new DynamicQuery(connectionString, table);
         }
 
         public static dynamic FindBy(dynamic param)
@@ -27,13 +23,13 @@ namespace Utilities.SqlHelpers
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder == null || string.IsNullOrEmpty(binder.Name))
+            if (string.IsNullOrEmpty(binder.Name))
             {
                 result = null;
                 return false;
             }
 
-            result = this.dynamicQuery.Execute(binder.Name.ToUpper(), args);
+            result = _dynamicQuery.Execute(binder.Name.ToUpper(), args);
             return true;
         }
     }

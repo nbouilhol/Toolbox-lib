@@ -38,7 +38,7 @@ namespace Mvc.Helper.UI
             this.text = text;
             this.column = column;
             this.urlBuilder = urlBuilder;
-            this.direction = sort.GetSortDataFor(column);
+            direction = sort.GetSortDataFor(column);
             this.@class = @class;
         }
 

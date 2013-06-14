@@ -7,29 +7,29 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class PropertyMetadata
     {
-        private readonly Type type;
-        private readonly Delegate setter;
-        private readonly PropertyInfo property;
-        private readonly Delegate getter;
+        private readonly Type _type;
+        private readonly Delegate _setter;
+        private readonly PropertyInfo _property;
+        private readonly Delegate _getter;
 
         public PropertyMetadata(Type type, PropertyInfo property)
         {
             Contract.Requires(type != null);
             Contract.Requires(property != null);
 
-            this.type = type;
-            this.property = property;
-            this.setter = BuildSetterDelegate(type, property);
-            this.getter = BuildGetterDelegate(property);
+            _type = type;
+            _property = property;
+            _setter = BuildSetterDelegate(type, property);
+            _getter = BuildGetterDelegate(property);
             PropertyName = MapPropertyName(property);
         }
 
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(property != null);
-            Contract.Invariant(setter != null);
-            Contract.Invariant(getter != null);
+            Contract.Invariant(_property != null);
+            Contract.Invariant(_setter != null);
+            Contract.Invariant(_getter != null);
         }
 
         private static string MapPropertyName(PropertyInfo property)
@@ -45,7 +45,7 @@ namespace Utilities.SqlHelpers.Mapper
 
         public PropertyInfo Property
         {
-            get { return property; }
+            get { return _property; }
         }
 
         public string PropertyName
@@ -56,12 +56,12 @@ namespace Utilities.SqlHelpers.Mapper
 
         public void SetValue(object instance, object value)
         {
-            setter.DynamicInvoke(instance, value);
+            _setter.DynamicInvoke(instance, value);
         }
 
         public object GetValue(object instance)
         {
-            return getter.DynamicInvoke(instance);
+            return _getter.DynamicInvoke(instance);
         }
 
         private static Delegate BuildSetterDelegate(Type type, PropertyInfo propertyInfo)
@@ -82,10 +82,10 @@ namespace Utilities.SqlHelpers.Mapper
 
         private Delegate BuildGetterDelegate(PropertyInfo propertyInfo)
         {
-            Contract.Requires(type != null);
+            Contract.Requires(_type != null);
             Contract.Requires(propertyInfo != null);
 
-            ParameterExpression param = Expression.Parameter(type, "x");
+            ParameterExpression param = Expression.Parameter(_type, "x");
             Expression expression = Expression.PropertyOrField(param, propertyInfo.Name);
 
             if (propertyInfo.PropertyType.IsValueType)
@@ -97,26 +97,26 @@ namespace Utilities.SqlHelpers.Mapper
 
     public class PropertyMetadata<T>
     {
-        private readonly Action<T, object> setter;
-        private readonly PropertyInfo property;
-        private readonly Func<T, object> getter;
+        private readonly Action<T, object> _setter;
+        private readonly PropertyInfo _property;
+        private readonly Func<T, object> _getter;
 
         public PropertyMetadata(PropertyInfo property)
         {
             Contract.Requires(property != null);
 
-            this.property = property;
-            this.setter = BuildSetterDelegate(property);
-            this.getter = BuildGetterDelegate(property);
+            _property = property;
+            _setter = BuildSetterDelegate(property);
+            _getter = BuildGetterDelegate(property);
             PropertyName = MapPropertyName(property);
         }
 
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(property != null);
-            Contract.Invariant(setter != null);
-            Contract.Invariant(getter != null);
+            Contract.Invariant(_property != null);
+            Contract.Invariant(_setter != null);
+            Contract.Invariant(_getter != null);
         }
 
         private static string MapPropertyName(PropertyInfo property)
@@ -132,7 +132,7 @@ namespace Utilities.SqlHelpers.Mapper
 
         public PropertyInfo Property
         {
-            get { return property; }
+            get { return _property; }
         }
 
         public string PropertyName
@@ -143,12 +143,12 @@ namespace Utilities.SqlHelpers.Mapper
 
         public void SetValue(T instance, object value)
         {
-            setter(instance, value);
+            _setter(instance, value);
         }
 
         public object GetValue(T instance)
         {
-            return getter(instance);
+            return _getter(instance);
         }
 
         private static Action<T, object> BuildSetterDelegate(PropertyInfo propertyInfo)

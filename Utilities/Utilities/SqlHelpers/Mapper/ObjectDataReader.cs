@@ -7,22 +7,22 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class ObjectDataReader<TData> : IDataReader
     {
-        private readonly PropertyAccessor<TData> propertyAccessor;
-        private readonly IEnumerator<TData> dataEnumerator;
+        private readonly PropertyAccessor<TData> _propertyAccessor;
+        private readonly IEnumerator<TData> _dataEnumerator;
 
         public ObjectDataReader(IEnumerable<TData> data)
         {
             Contract.Requires(data != null);
 
-            this.propertyAccessor = PropertyAccessor<TData>.Create();
-            this.dataEnumerator = data.GetEnumerator();
+            _propertyAccessor = PropertyAccessor<TData>.Create();
+            _dataEnumerator = data.GetEnumerator();
         }
 
         #region IDataReader Members
 
         public void Close()
         {
-            this.Dispose();
+            Dispose();
         }
 
         public int Depth
@@ -37,7 +37,7 @@ namespace Utilities.SqlHelpers.Mapper
 
         public bool IsClosed
         {
-            get { return this.dataEnumerator == null; }
+            get { return _dataEnumerator == null; }
         }
 
         public bool NextResult()
@@ -47,9 +47,9 @@ namespace Utilities.SqlHelpers.Mapper
 
         public bool Read()
         {
-            if (this.dataEnumerator == null) throw new ObjectDisposedException("ObjectDataReader");
+            if (_dataEnumerator == null) throw new ObjectDisposedException("ObjectDataReader");
 
-            return this.dataEnumerator.MoveNext();
+            return _dataEnumerator.MoveNext();
         }
 
         public int RecordsAffected
@@ -63,13 +63,13 @@ namespace Utilities.SqlHelpers.Mapper
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected void Dispose(bool disposing)
         {
-            if (disposing) if (this.dataEnumerator != null) this.dataEnumerator.Dispose();
+            if (disposing) if (_dataEnumerator != null) _dataEnumerator.Dispose();
         }
 
         #endregion IDisposable Members
@@ -78,7 +78,7 @@ namespace Utilities.SqlHelpers.Mapper
 
         public int FieldCount
         {
-            get { return propertyAccessor.Accessors.Length; }
+            get { return _propertyAccessor.Accessors.Length; }
         }
 
         public bool GetBoolean(int i)
@@ -170,7 +170,7 @@ namespace Utilities.SqlHelpers.Mapper
         {
             int ordinal;
 
-            if (!propertyAccessor.OrdinalLookup.TryGetValue(name, out ordinal)) throw new InvalidOperationException("Unknown parameter name " + name);
+            if (!_propertyAccessor.OrdinalLookup.TryGetValue(name, out ordinal)) throw new InvalidOperationException("Unknown parameter name " + name);
 
             return ordinal;
         }
@@ -182,8 +182,8 @@ namespace Utilities.SqlHelpers.Mapper
 
         public object GetValue(int i)
         {
-            if (this.dataEnumerator == null) throw new ObjectDisposedException("ObjectDataReader");
-            return i < propertyAccessor.Accessors.Length ? propertyAccessor.Accessors[i](this.dataEnumerator.Current) : null;
+            if (_dataEnumerator == null) throw new ObjectDisposedException("ObjectDataReader");
+            return i < _propertyAccessor.Accessors.Length ? _propertyAccessor.Accessors[i](_dataEnumerator.Current) : null;
         }
 
         public int GetValues(object[] values)

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 
-namespace Utilities
+namespace Utilities.DomainCommands
 {
     [InheritedExport]
     public interface ICommand { }

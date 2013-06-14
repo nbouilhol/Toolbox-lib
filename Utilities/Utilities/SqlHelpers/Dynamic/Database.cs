@@ -1,14 +1,14 @@
 ﻿using System.Dynamic;
 
-namespace Utilities.SqlHelpers
+namespace Utilities.SqlHelpers.Dynamic
 {
     public class Database : DynamicObject
     {
-        private readonly string connectionString;
+        private readonly string _connectionString;
 
         public Database(string connectionString)
         {
-            this.connectionString = connectionString;
+            _connectionString = connectionString;
         }
 
         public static dynamic OpenConnection(string connectionString)
@@ -18,8 +18,7 @@ namespace Utilities.SqlHelpers
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (binder == null) { result = null; return false; }
-            result = new Table(connectionString, binder.Name);
+            result = new Table(_connectionString, binder.Name);
             return true;
         }
     }

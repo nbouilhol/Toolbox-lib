@@ -11,26 +11,26 @@ namespace Utilities.SqlHelpers.Mapper
 {
     public class Mapper<T>
     {
-        private readonly Func<T> factory;
-        private readonly IDictionary<string, PropertyMetadata<T>> properties;
-        private static readonly Lazy<Mapper<T>> instanceCache = new Lazy<Mapper<T>>(() => new Mapper<T>());
+        private readonly Func<T> _factory;
+        private readonly IDictionary<string, PropertyMetadata<T>> _properties;
+        private static readonly Lazy<Mapper<T>> InstanceCache = new Lazy<Mapper<T>>(() => new Mapper<T>());
 
         public static Mapper<T> Create()
         {
-            return instanceCache.Value;
+            return InstanceCache.Value;
         }
 
         private Mapper()
         {
-            this.factory = CreateActivatorDelegate();
-            this.properties = BuildPropertiesDictionary();
+            _factory = CreateActivatorDelegate();
+            _properties = BuildPropertiesDictionary();
         }
 
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(this.factory != null);
-            Contract.Invariant(this.properties != null);
+            Contract.Invariant(_factory != null);
+            Contract.Invariant(_properties != null);
         }
 
         private static IDictionary<string, PropertyMetadata<T>> BuildPropertiesDictionary()
@@ -57,7 +57,7 @@ namespace Utilities.SqlHelpers.Mapper
                 while (reader.Read())
                 {
                     T result = Map(reader);
-                    if (result != null) yield return result;
+                    if (!EqualityComparer<T>.Default.Equals(result, default(T))) yield return result;
                 }
 
                 reader.NextResult();
@@ -75,18 +75,20 @@ namespace Utilities.SqlHelpers.Mapper
         {
             Contract.Requires(record != null);
 
-            T instance = factory();
+            T instance = _factory();
 
             for (int column = 0; column < record.FieldCount; column++)
             {
-                PropertyMetadata<T> property;
-
                 if (!record.IsDBNull(column))
                 {
                     try
                     {
                         if (typeof(T).IsValueType) instance = record[column] != null ? (T)record[column] : default(T);
-                        else if (properties.TryGetValue(record.GetName(column), out property)) if (property != null) property.SetValue(instance, record[column]);
+                        else
+                        {
+                            PropertyMetadata<T> property;
+                            if (_properties.TryGetValue(record.GetName(column), out property)) if (property != null) property.SetValue(instance, record[column]);
+                        }
                     }
                     catch (InvalidCastException e)
                     {

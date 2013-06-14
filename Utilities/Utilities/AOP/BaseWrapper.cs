@@ -3,33 +3,32 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Utilities.AOP
 {
     public abstract class BaseWrapper<T> : DynamicObject where T : class
     {
-        private readonly T source;
-        private readonly Type type;
+        private readonly T _source;
+        private readonly Type _type;
 
         protected BaseWrapper(T source)
         {
-            this.source = source;
-            this.type = typeof(T);
+            _source = source;
+            _type = typeof(T);
         }
 
         [ContractInvariantMethod]
         private void ObjectInvariant()
         {
-            Contract.Invariant(this.type != null);
+            Contract.Invariant(_type != null);
         }
 
-        public T RealObject { get { return source; } }
+        public T RealObject { get { return _source; } }
 
-        protected Type TargetType { get { return type; } }
+        protected Type TargetType { get { return _type; } }
 
-        protected T Instance { get { return source; } }
+        protected T Instance { get { return _source; } }
 
         protected BindingFlags BindingFlags
         {
@@ -40,18 +39,7 @@ namespace Utilities.AOP
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            return type.GetMembers().Select(member => member.Name).ToList();
-        }
-
-        public override DynamicMetaObject GetMetaObject(Expression parameter)
-        {
-            return base.GetMetaObject(parameter);
-        }
-
-        public override bool TryBinaryOperation(BinaryOperationBinder binder, object arg, out object result)
-        {
-            //throw new NotImplementedException("TryBinaryOperation");
-            return base.TryBinaryOperation(binder, arg, out result);
+            return _type.GetMembers().Select(member => member.Name).ToList();
         }
 
         public override bool TryConvert(ConvertBinder binder, out object result)
@@ -61,92 +49,47 @@ namespace Utilities.AOP
             return true;
         }
 
-        public override bool TryCreateInstance(CreateInstanceBinder binder, object[] args, out object result)
-        {
-            //throw new NotImplementedException("TryCreateInstance");
-            return base.TryCreateInstance(binder, args, out result);
-        }
-
-        public override bool TryDeleteIndex(DeleteIndexBinder binder, object[] indexes)
-        {
-            //throw new NotImplementedException("TryDeleteIndex");
-            return base.TryDeleteIndex(binder, indexes);
-        }
-
-        public override bool TryDeleteMember(DeleteMemberBinder binder)
-        {
-            //throw new NotImplementedException("TryDeleteMember");
-            return base.TryDeleteMember(binder);
-        }
-
-        public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
-        {
-            //throw new NotImplementedException("TryGetIndex");
-            return base.TryGetIndex(binder, indexes, out result);
-        }
-
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            if (binder == null) { result = null; return false; }
-            MemberInfo info = type.GetMember(binder.Name, BindingFlags).FirstOrDefault();
+            MemberInfo info = _type.GetMember(binder.Name, BindingFlags).FirstOrDefault();
             if (info == null || !(info is FieldInfo || info is PropertyInfo)) { result = null; return false; }
-            result = info.Get(source);
+            result = info.Get(_source);
             return true;
-        }
-
-        public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
-        {
-            return base.TryInvoke(binder, args, out result);
-        }
-
-        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object value)
-        {
-            //throw new NotImplementedException("TrySetIndex");
-            return base.TrySetIndex(binder, indexes, value);
         }
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            if (binder == null || string.IsNullOrEmpty(binder.Name)) { return false; }
+            if (string.IsNullOrEmpty(binder.Name)) { return false; }
 
-            PropertyInfo property = type.GetProperty(binder.Name, BindingFlags);
+            PropertyInfo property = _type.GetProperty(binder.Name, BindingFlags);
             if (property != null && property.CanWrite)
             {
-                property.Set(source, value);
+                property.Set(_source, value);
                 return true;
             }
-            FieldInfo field = type.GetField(binder.Name, BindingFlags);
-            if (field != null)
-            {
-                field.Set(source, value);
-                return true;
-            }
-            return false;
-        }
-
-        public override bool TryUnaryOperation(UnaryOperationBinder binder, out object result)
-        {
-            //throw new NotImplementedException("TryUnaryOperation");
-            return base.TryUnaryOperation(binder, out result);
+            FieldInfo field = _type.GetField(binder.Name, BindingFlags);
+            if (field == null) return false;
+            field.Set(_source, value);
+            return true;
         }
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            if (binder == null || binder.Name == null) { result = null; return false; }
-            OnEntry(source, binder.Name, args);
+            if (binder.Name == null) { result = null; return false; }
+            OnEntry(_source, binder.Name, args);
 
             try
             {
-                result = OnInvoke(source, binder.Name, args);
-                OnSuccess(source, binder.Name, args, result);
+                result = OnInvoke(_source, binder.Name, args);
+                OnSuccess(_source, binder.Name, args, result);
             }
             catch (Exception ex)
             {
                 result = null;
-                OnException(source, binder.Name, args, ex);
+                OnException(_source, binder.Name, args, ex);
             }
 
-            OnExit(source, binder.Name, args, result);
+            OnExit(_source, binder.Name, args, result);
 
             return true;
         }
@@ -166,12 +109,12 @@ namespace Utilities.AOP
 
             try
             {
-                return GetMethodAndInvoke(type, source, methodName, args);
+                return GetMethodAndInvoke(_type, source, methodName, args);
             }
             catch (MissingMethodException)
             {
-                if (type.BaseType != null)
-                    return GetMethodAndInvoke(type.BaseType, source, methodName, args);
+                if (_type.BaseType != null)
+                    return GetMethodAndInvoke(_type.BaseType, source, methodName, args);
                 throw;
             }
         }
@@ -202,7 +145,7 @@ namespace Utilities.AOP
             return type.GetMethod(methodName, BindingFlags);
         }
 
-        private object Invoke(MethodInfo methodeInfo, T source, object[] args)
+        private static object Invoke(MethodInfo methodeInfo, T source, object[] args)
         {
             return methodeInfo != null ? methodeInfo.Invoke(source, args) : null;
         }
@@ -223,8 +166,8 @@ namespace Utilities.AOP
         {
             Contract.Requires(memberInfo != null);
 
-            if (memberInfo is PropertyInfo)
-                return ((PropertyInfo)memberInfo).GetValue(source, null);
+            PropertyInfo info = memberInfo as PropertyInfo;
+            if (info != null) return info.GetValue(source, null);
             return ((FieldInfo)memberInfo).GetValue(source);
         }
 

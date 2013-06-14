@@ -10,8 +10,8 @@ namespace Utilities.QueryBuilder
 
         public SqlWhereOperator(SqlQueryRequest sqlQueryRequest)
         {
-            this._sqlQueryRequest = sqlQueryRequest;
-            this._sqlQueryBuilder = new SqlQueryBuilder(sqlQueryRequest);
+            _sqlQueryRequest = sqlQueryRequest;
+            _sqlQueryBuilder = new SqlQueryBuilder(sqlQueryRequest);
         }
 
         public SqlWhereBuilder And()

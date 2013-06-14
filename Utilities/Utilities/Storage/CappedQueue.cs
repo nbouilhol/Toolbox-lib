@@ -8,39 +8,35 @@ namespace Utilities.Storage
 {
     public abstract class CappedQueue<T> : ConcurrentQueue<T> where T : class
     {
-        private readonly int capLimit;
-        private readonly int timeLimit;
-        private readonly Timer timer;
-        private TaskFactory factory;
+        private readonly int _capLimit;
+        private readonly Timer _timer;
+        private readonly TaskFactory _factory;
 
         public event Action<IEnumerable<T>> OnPublish = delegate { };
 
         protected CappedQueue(int capLimit, int timeLimit)
         {
-            this.capLimit = capLimit;
-            this.timeLimit = timeLimit;
-            this.factory = new TaskFactory();
-            this.timer = new Timer();
-            this.timer.AutoReset = false;
-            this.timer.Interval = timeLimit * 1000;
-            this.timer.Elapsed += new ElapsedEventHandler((s, e) => { Publish(); });
-            this.timer.Start();
+            _capLimit = capLimit;
+            _factory = new TaskFactory();
+            _timer = new Timer {AutoReset = false, Interval = timeLimit*1000};
+            _timer.Elapsed += (s, e) => Publish();
+            _timer.Start();
         }
 
         public virtual new void Enqueue(T item)
         {
             base.Enqueue(item);
-            if (Count >= capLimit) Publish();
+            if (Count >= _capLimit) Publish();
         }
 
         protected virtual void Publish()
         {
-            factory.StartNew(t =>
+            _factory.StartNew(t =>
             {
                 ((Timer)t).Stop();
                 OnPublish(Dequeue());
                 ((Timer)t).Start();
-            }, timer);
+            }, _timer);
         }
 
         private IEnumerable<T> Dequeue()
