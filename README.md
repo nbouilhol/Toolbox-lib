@@ -1,3 +1,3 @@
-# bouilhol-lib
+# Toolbox-lib
 
-My toolbox of jquery plugins and .Net projects.
+Old toolbox
